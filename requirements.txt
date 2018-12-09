@@ -1,5 +1,5 @@
 pylast
 oauthlib==1.0.3
-requests==2.8.1
+requests
 ffs
 discogs_client
