@@ -35,6 +35,8 @@ File in `./inasilentway/settings.py`
 Should contain:
 
 ```python
+from pylast import md5
+
 LASTFM_API_KEY = 'your api key'
 LASTFM_SECRET  = 'your secret'
 LASTFM_USER    = 'your username'
