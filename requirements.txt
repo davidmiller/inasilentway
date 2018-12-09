@@ -1,0 +1,4 @@
+pylast
+oauthlib==1.0.3
+requests==2.8.1
+ffs
