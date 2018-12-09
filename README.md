@@ -1,17 +1,42 @@
+## In a silent way
+
+Managing Discogs collection, srobbling vinyl listening to last.fm
+
+### Usage
+
 Download collection:
 
 ```shell
-python -m inasilentway download
+./shhh download
 ```
 
 Select a random record:
 
 ```shell
-python -m inasilentway random
+./shhh random
 ```
 
 Select a random record from a genre:
 
 ```shell
-python -m inasilentway random -g $GENRE
+./shhh random -g $GENRE
+```
+
+Scrobble records
+
+```shell
+./shhh scrobble
+```
+
+### Setup
+
+File in `./inasilentway/settings.py`
+
+Should contain:
+
+```python
+LASTFM_API_KEY = 'your api key'
+LASTFM_SECRET  = 'your secret'
+LASTFM_USER    = 'your username'
+LASTFM_PASS    = md5('your password')
 ```
