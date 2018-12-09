@@ -4,7 +4,7 @@ Commandline entrypoint
 import argparse
 import sys
 
-from inasilentway import collection
+from inasilentway import collection, last
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -23,6 +23,9 @@ def parse_args():
 
     parser_download = subparsers.add_parser('download')
     parser_download.set_defaults(func=collection.download)
+
+    parser_scrobble = subparsers.add_parser('scrobble')
+    parser_scrobble.set_defaults(func=last.scrobble)
 
     args = parser.parse_args()
     return args
