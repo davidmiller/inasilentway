@@ -22,7 +22,7 @@ def get_collection():
 
 def download(args):
     records = get_collection()
-    api = discogs.Client('A test application')
+    api = discogs.Client('Inasilentway')
     me = api.user('thatdavidmiller')
     if len(records) != me.num_collection:
         print 'fetching data...'
