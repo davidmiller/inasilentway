@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block page_title %}
+  {% include 'partials/lastfm_header.html' %}
+{% endblock %}
+{% block content %}
+  <h2 class="f6 ttu bb mt3 mb3">
+    Recently Scrobbled
+  </h2>
+
+  <ul class="list pl0">
+    {% for object in view.get_recent_scrobbles %}
+      <li>
+        <div class="flex">
+          <div class="w-30 pa1">
+            <a href="{{ object.get_absolute_url }}">
+              {{ object.title }}
+            </a>
+          </div>
+          <div class="w-30">
+            {% for artist in object.artist.all %}
+              {{ artist.name }}
+            {% endfor %}
+          </div>
+          <div class="w-30">
+            {{ object.most_recent_scrobble.datetime | date:"j M y H:m" }}
+          </div>
+        </div>
+
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block page_title %}
+  {% include 'partials/lastfm_header.html' %}
+{% endblock %}
+{% block content %}
+  <h2 class="f6 ttu bb mt3 mb3">
+    Scrobbles {% if view.num_scrobbles %}({{ view.num_scrobbles | intcomma }}){% endif %}
+  </h2>
+  <div class="flex">
+    <div class="w-60 mr3 br">
+
+      <ul class="list pl0">
+        {% for scrobble in object_list %}
+          <li class="pa1">
+            <div class="flex">
+              <div class="w-50">
+                {% if scrobble.isw_artist %}<a href="{{ scrobble.isw_artist.get_absolute_url }}">{% endif %}
+                {{ scrobble.artist }}
+                {% if scrobble.isw_artist %}</a>{% endif %}
+                -
+                {{ scrobble.title }}
+              </div>
+              <div class="w-30">
+                {% if scrobble.isw_album %}<a href="{{ scrobble.isw_album.get_absolute_url }}">{% endif %}
+                {% if scrobble.album %}{{ scrobble.album }}{% endif %}
+                {% if scrobble.isw_album %}</a>{% endif %}
+              </div>
+              <div class="w-20">
+                {{ scrobble.ts_as_str }}
+              </div>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+
+      {% include 'partials/pagination.html' %}
+    </div>
+
+    <div class="w-40">
+        {% for year, count, proportion in view.get_scrobbles_by_year  %}
+          <div class="flex">
+            <div class="w-20 mb1 mt1 pa1">
+              {{ year }}
+            </div>
+            <div class="w-80">
+              <div class="flex">
+                <div class="w-{{ proportion }} bg-dark-green washed-blue pa1 mb1 mt1">
+                  {{ count | intcomma }}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+
+    </div>
+  </div>
+{% endblock %}

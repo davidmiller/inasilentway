@@ -27,6 +27,15 @@ def parse_args():
     parser_scrobble = subparsers.add_parser('scrobble')
     parser_scrobble.set_defaults(func=last.scrobble)
 
+    parser_load_django = subparsers.add_parser('load_django')
+    parser_load_django.set_defaults(func=collection.load_django)
+
+    parser_scrobbles = subparsers.add_parser('load_scrobbles')
+    parser_scrobbles.set_defaults(func=last.load_scrobbles)
+
+    parser_scrobbles = subparsers.add_parser('link_scrobbles')
+    parser_scrobbles.set_defaults(func=last.link_scrobbles)
+
     args = parser.parse_args()
     return args
 

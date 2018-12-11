@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block page_title %}
+  {% if view.page_subtitle %}
+    <h2 class="f3 mb3 mt0 pa5">
+      {{ view.page_subtitle }}
+    </h2>
+  {% endif %}
+
+{% endblock %}
+{% block content %}
+  <h2 class="f6 ttu bb mt3 mb3">
+    <div class="flex">
+      <div class="fl w-40">
+        Records ({{ view.get_num_records }})
+      </div>
+      <div class="fl w-20 tc">
+        <a href="{{ view.request.get_full_path }}{% if '?' in view.request.get_full_path %}&{% else %}?{% endif %}redirect=random">Random</a>
+      </div>
+      <div class="fl w-40">
+        <span class="fr">
+          <a href="{{ view.request.META.PATH_INFO }}?sort=artist">Artist</a>
+          <a href="{{ view.request.META.PATH_INFO }}?sort=title">Title</a>
+          <a href="{{ view.request.META.PATH_INFO }}?sort=year">Year</a>
+        </span>
+      </div>
+    </div>
+  </h2>
+
+  <div class="flex pb3">
+    {% for record in object_list %}
+      <div class="fl w-20">
+        <a href="{{ record.get_absolute_url }}">
+          <img src="{{ record.thumb }}" />
+        </a>
+        <p class="w-60">
+          {{ record.title }}
+        </p>
+      </div>
+      {% if forloop.counter|divisibleby:"5" %}
+        </div>
+        <div class="flex pb3">
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  {% include 'partials/pagination.html' %}
+
+{% endblock %}

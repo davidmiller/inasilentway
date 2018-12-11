@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>In a silent way</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://unpkg.com/tachyons@4.10.0/css/tachyons.min.css"/>
+    <link rel="stylesheet" href="{% static 'css/inasilentway.css' %}"/>
+  </head>
+
+  <body class="">
+    {% block header %}
+      <div class="w-100 pa4 pl5 mt0 bg-navy athelas">
+        <div class="flex">
+          <div class="w-80">
+            <a href="/" class="gold link underline-hover">
+              <h1 class="f1">In a silent way</h1>
+            </a>
+          </div>
+          <div class="w-20 pt4 mt2">
+            <form method="get" action="{% url 'search' %}">
+              {% csrf_token %}
+              <input type="text" name="query" id="searchBox" placeholder="Search">
+            </form>
+            <div class="flex ttu pt4 avenir pl0 ml0">
+              <div class="mr2 w-50">
+                <a href="{% url 'home' %}" class="link gold hover-bg-orange hover-white pt2 pb2">
+                  Collection
+                </a>
+              </div>
+              <div class="w-50">
+                <a href="{% url 'scrobble-list' %}" class="link gold hover-bg-orange hover-white pt2 pb2">
+                  Scrobbles
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <div class="w-100 pl5">
+      </div>
+    {% endblock %}
+
+    <div class="w-100 bg-gold avenir">
+      {% block page_title %}{% endblock %}
+    </div>
+    <section>
+      <div class="pa5 avenir">
+        {% block content %}{% endblock %}
+      </div>
+    </section>
+  </body>
+
+  <script src="{% static 'js/inasilentway.js' %}"></script>
+
+</html>

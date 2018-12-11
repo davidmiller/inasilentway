@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block page_title %}
+  <div class="flex">
+    <div class="w-20">
+      <img src="{{ object.thumb }}" class="pl5 pt3" />
+    </div>
+    <div class="w-90">
+      <h2 class="f3 mb3 mt0 pa5 pl0">
+        {{ object.title }}
+        <br />
+        {% for artist in record.artist.all %}
+          <a class="link black underline" href="{{ artist.get_absolute_url }}">{{ artist.name }}</a>
+        {% endfor %}
+      </h2>
+    </div>
+  </div>
+{% endblock %}
+
+{% block content %}
+
+  <div class="">
+    <div class="fl w-50 pr5">
+      <h3 class="f6 ttu bb mt0 mb3">
+        Details
+      </h3>
+
+      <div class="flex pb2">
+        <div class="fl w-20 b">
+          Label:
+        </div>
+        <div class="fl w-80">
+          <a href="{{ record.label.get_absolute_url }}">
+            {{ record.label.name }}
+          </a>
+        </div>
+      </div>
+
+      <div class="flex pb2">
+        <div class="fl w-20 b">Year:</div>
+        <div class="fl w-80">{{ record.year }}</div>
+      </div>
+
+      <div class="flex pb2">
+        <div class="fl w-20 b">
+          Genres:</div>
+        <div class="fl w-80">
+          {% for genre in record.genres.all  %}
+            <a href="{{ genre.get_absolute_url }}">
+              {{ genre.name }}
+            </a>{% if not forloop.last %},{% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="flex pb2">
+        <div class="fl w-20 b">Country:</div>
+        <div class="fl w-80">{{ record.country }}</div>
+      </div>
+
+      <div class="flex pb2">
+        <div class="fl w-20 b">Formats:</div>
+        <div class="fl w-80">{{ record.formats }}</div>
+      </div>
+
+      {% if record.styles.count %}
+        <div class="flex pb2">
+          <div class="fl w-20 b">Styles:</div>
+          {% for style in record.styles.all  %}
+            {{ style.name }}{% if not forloop.last %},{% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% if record.notes %}
+        <div class="flex pb2">
+          <div class="fl w-20 b">Notes:</div>
+          <div class="fl w-80">{{ record.notes}} </div>
+        </div>
+      {% endif %}
+
+    </div>
+    <div class="fl w-50 pr5">
+      <h3 class="f6 ttu bb mt0 mb3">
+        Tracklist
+      </h3>
+      <ol class="list pl0">
+        {% for track in object.track_set.all %}
+          <li>
+            <div class="flex">
+              <div class="w-10">
+                {{ track.position }}
+              </div>
+              <div class="w-60">
+                {{ track.title }}
+              </div>
+              <div class="w-20">
+                {{ track.duration }}
+              </div>
+              <div class="w-10">
+                ({{ track.scrobble_set.count }})
+              </div>
+          </li>
+        {% endfor %}
+      </ol>
+      </div>
+
+      <!-- <div class="fl w-10"> -->
+      <!--   <div class="mb3 "> -->
+      <!--     <img src="{{ object.thumb }}" /> -->
+      <!--   </div> -->
+      <!-- </div> -->
+
+    </div>
+
+    <div class="fl w-100 mt3 mb3 ">
+      <h3 class="f6 ttu bb">
+        Scrobbles ({{ object.scrobble_set.count | intcomma }})
+      </h3>
+      <div class="flex">
+        <div class="w-50 pr3 br">
+
+          {% for year, count, proportion in view.scrobbles_by_year  %}
+            <div class="flex">
+              <div class="w-20 mb1 mt1 pa1">
+                {{ year }}
+              </div>
+              <div class="w-80">
+                <div class="flex">
+                  <div class="w-{{ proportion }} bg-dark-green washed-blue pa1 mb1 mt1">
+                    {{ count }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+
+        </div>
+        <div class="w-50">
+          {% with view.get_scrobble_form as form %}
+            <form method="post" action="{% url 'submit-scrobble' %}">
+              {% csrf_token %}
+              {{ form.record_id.as_hidden }}
+              <div class="pa2 ma2">
+                {{ form.date }}
+              </div>
+              <div class="pa2 ma2">
+                {{ form.time }}
+              </div>
+              <div class="pa2 ma2">
+                <button type="submit">Scrobble</button>
+              </div>
+            </form>
+          {% endwith %}
+        </div>
+      </div>
+    </div>
+
+    <div class="fl w-100 mt3 mb3">
+      <h3 class="f6 ttu bb">
+        Links
+      </h3>
+      <a href="https://discogs.com/album/release/{{ object.discogs_id }}" target="_blank">
+        Discogs release page
+      </a>
+    </div>
+
+    <!-- <div class="fl w-100 mt3 mb3"> -->
+      <!--   <h3 class="f6 ttu bb"> -->
+        <!--     Developer tools -->
+        <!--   </h3> -->
+
+      <!--   <form method="post" action="{% url 'delete-record' object.id %}">{% csrf_token %} -->
+        <!--     <p>Are you sure you want to delete "{{ object }}"?</p> -->
+        <!--     <input type="submit" value="Confirm"> -->
+        <!--   </form> -->
+
+      <!-- </div> -->
+
+    <!-- <div> -->
+      <!--   <div class="fl w-100"> -->
+        <!--     <h3 class="f6 ttu bb"> -->
+          <!--       Unmanaged API fields -->
+          <!--     </h3> -->
+
+        <!--     <ul class="list"> -->
+          <!--       <li>Images: {{ record.images }}</li> -->
+          <!--     </ul> -->
+        <!--   </div> -->
+      <!-- </div> -->
+    {% endblock %}
