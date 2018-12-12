@@ -22,8 +22,8 @@ class RecordListView(ListView):
     def get_random_record(self):
         qs = self.get_queryset()
         ids = qs.values_list('id', flat=True)
-        record_id = random.choice(ids)
-        return redirect(reverse('record', args=[record_id]))
+        record = Record.objects.get(pk=random.choice(ids))
+        return redirect(record.get_absolute_url())
 
     def dispatch(self, *a, **k):
         if self.request.GET.get('redirect', None == 'random'):

@@ -36,6 +36,7 @@ urlpatterns = [
         views.RecentlyScrobbledRecordsView.as_view(),
         name='recently-scrobbled-records'
     ),
+
     path(
         'scrobbles/top-records/',
         views.TopScrobbledRecordsView.as_view(),
