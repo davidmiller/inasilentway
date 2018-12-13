@@ -1,0 +1,7 @@
+[run]
+source =
+    inasilentway
+omit =
+     */migrations/*
+     inasilentway/wsgi.py
+     inasilentway/settings.py

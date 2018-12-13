@@ -24,23 +24,32 @@ urlpatterns = [
     url(r'^$', views.HomeView.as_view(), name='home'),
 
     path('record/<int:pk>/<slug>', views.RecordView.as_view(), name='record'),
-    path('record/delete/<int:pk>/', views.DeleteRecordView.as_view(), name='delete-record'),
+    path(
+        'record/delete/<int:pk>/',
+        views.DeleteRecordView.as_view(),
+        name='delete-record'),
 
     path('artist/<int:pk>/', views.ArtistView.as_view(), name='artist'),
     path('genre/<int:pk>/', views.GenreView.as_view(), name='genre'),
     path('label/<int:pk>', views.LabelView.as_view(), name='label'),
     path('search/', views.SearchView.as_view(), name='search'),
+
     path('scrobbles/', views.ScrobbleListView.as_view(), name='scrobble-list'),
     path(
         'scrobbles/recently-scrobbled-records/',
         views.RecentlyScrobbledRecordsView.as_view(),
         name='recently-scrobbled-records'
     ),
-
     path(
-        'scrobbles/top-records/',
-        views.TopScrobbledRecordsView.as_view(),
-        name='top-scrobbled-albums'
-    ),
-    path('submit-scrobble/', views.SubmitScrobbleView.as_view(), name='submit-scrobble'),
+        'scrobbles/unlinked/',
+        views.UnlinkedScrobbleView.as_view(),
+        name='unlinked-scrobbles'),
+    path(
+        'submit-scrobble/',
+        views.SubmitScrobbleView.as_view(),
+        name='submit-scrobble'),
+    path(
+        'listening-history/',
+        views.ListeningHistoryView.as_view(),
+        name='listening-history'),
 ]

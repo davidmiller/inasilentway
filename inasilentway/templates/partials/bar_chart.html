@@ -1,0 +1,15 @@
+{% load humanize %}
+{% for y, value, proportion in data  %}
+  <div class="flex">
+    <div class="w-20 mb1 mt1 pa1">
+      {{ y }}
+    </div>
+    <div class="w-80">
+      <div class="flex">
+        <div class="w-{{ proportion }} bg-dark-green washed-blue pa1 mb1 mt1">
+          {{ value | intcomma }}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endfor %}

@@ -3,3 +3,4 @@ oauthlib==1.0.3
 requests
 ffs
 discogs_client
+mock

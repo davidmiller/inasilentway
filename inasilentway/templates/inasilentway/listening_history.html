@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load inasilentway %}
+{% block page_title %}
+  {% include 'partials/lastfm_header.html' %}
+{% endblock %}
+{% block content %}
+  <div class="flex">
+    <div class="w-50 pr3 br">
+      <h2 class="f6 ttu bb mt3 mb3">
+        Top Artists (linked)
+      </h2>
+      <ul class="list pl0">
+        {% for artist in view.get_top_artists %}
+          <li>
+            <a href="{{ artist.get_absolute_url }}">
+              {{ artist.name }}
+            </a>
+            <span class="fr">{{ artist.total | intcomma }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="w-50 pl3">
+      <h2 class="f6 ttu bb mt3 mb3">
+        Top Artists (last.fm)
+      </h2>
+      <ul class="list pl0">
+        {% for artist in view.get_top_lastfm_artists %}
+          <li>
+              {{ artist.artist }}
+              <span class="fr">{{ artist.total | intcomma }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+  </div>
+{% endblock %}

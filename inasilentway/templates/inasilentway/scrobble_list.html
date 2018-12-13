@@ -1,11 +1,15 @@
 {% extends 'base.html' %}
 {% load humanize %}
+{% load inasilentway %}
 {% block page_title %}
   {% include 'partials/lastfm_header.html' %}
 {% endblock %}
 {% block content %}
   <h2 class="f6 ttu bb mt3 mb3">
-    Scrobbles {% if view.num_scrobbles %}({{ view.num_scrobbles | intcomma }}){% endif %}
+    {% block content_title %}
+      Scrobbles
+      {% if view.num_scrobbles %}({{ view.num_scrobbles | intcomma }}){% endif %}
+    {% endblock %}
   </h2>
   <div class="flex">
     <div class="w-60 mr3 br">
@@ -38,21 +42,9 @@
     </div>
 
     <div class="w-40">
-        {% for year, count, proportion in view.get_scrobbles_by_year  %}
-          <div class="flex">
-            <div class="w-20 mb1 mt1 pa1">
-              {{ year }}
-            </div>
-            <div class="w-80">
-              <div class="flex">
-                <div class="w-{{ proportion }} bg-dark-green washed-blue pa1 mb1 mt1">
-                  {{ count | intcomma }}
-                </div>
-              </div>
-            </div>
-          </div>
-        {% endfor %}
-
+      {% block scrobble_graph %}
+        {% bar_chart view.get_scrobbles_by_year %}
+      {% endblock %}
     </div>
   </div>
 {% endblock %}

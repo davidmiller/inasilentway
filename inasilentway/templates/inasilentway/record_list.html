@@ -11,7 +11,7 @@
   <h2 class="f6 ttu bb mt3 mb3">
     <div class="flex">
       <div class="fl w-40">
-        Records ({{ view.get_num_records }})
+        Records ({{ view.num_records }})
       </div>
       <div class="fl w-20 tc">
         <a href="{{ view.request.get_full_path }}{% if '?' in view.request.get_full_path %}&{% else %}?{% endif %}redirect=random">Random</a>

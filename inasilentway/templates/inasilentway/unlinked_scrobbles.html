@@ -1,0 +1,7 @@
+{% extends 'inasilentway/scrobble_list.html' %}
+{% load humanize %}
+{% block content_title %}
+  Scrobbles
+  ({{ view.num_scrobbles | intcomma }} / {{ view.total_scrobbles | intcomma }})
+{% endblock %}
+{% block scrobble_graph %}{% endblock %}

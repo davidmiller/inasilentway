@@ -40,6 +40,9 @@ class Artist(models.Model):
     profile    = models.CharField(max_length=200)
     urls       = models.CharField(max_length=200, blank=True, null=True)
 
+    def __str__(self):
+        return "{}: {}".format(self.id, self.name)
+
     def get_absolute_url(self):
         return reverse('artist', args=[self.id])
 
@@ -55,7 +58,6 @@ class Label(models.Model):
         return reverse('label', args=[self.id])
 
 
-
 class Record(models.Model):
     """
     An individual record
@@ -65,7 +67,9 @@ class Record(models.Model):
     genres  = models.ManyToManyField(Genre)
     styles  = models.ManyToManyField(Style)
 
-    label   = models.ForeignKey(Label, on_delete=models.CASCADE, blank=True, null=True)
+    label   = models.ForeignKey(
+        Label, on_delete=models.CASCADE, blank=True, null=True
+    )
     title   = models.CharField(max_length=200, blank=True, null=True)
     year    = models.CharField(max_length=200, blank=True, null=True)
     thumb   = models.CharField(max_length=200, blank=True, null=True)
@@ -76,6 +80,10 @@ class Record(models.Model):
     url     = models.CharField(max_length=200, blank=True, null=True)
     # What are these?
     status  = models.CharField(max_length=200, blank=True, null=True)
+    added   = models.DateField(blank=True, null=True)
+
+    def __str__(self):
+        return "{}: {}".format(self.id, self.title)
 
     def get_absolute_url(self):
         return reverse('record', args=[self.id, slugify(self.title)])
@@ -92,6 +100,9 @@ class Track(models.Model):
     duration = models.CharField(max_length=200)
     position = models.CharField(max_length=200)
     title    = models.CharField(max_length=200)
+
+    def __str__(self):
+        return "{}: {}".format(self.id, self.title)
 
 
 class Scrobble(models.Model):
@@ -118,6 +129,12 @@ class Scrobble(models.Model):
         Artist, blank=True, null=True,
         on_delete=models.DO_NOTHING
     )
+
+    def __str__(self):
+        return "{}: {} {} {} {}".format(
+            self.id, self.artist, self.title, self.album,
+            self.ts_as_str()
+        )
 
     def ts_as_str(self):
         return timezone.make_aware(
