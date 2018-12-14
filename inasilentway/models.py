@@ -17,7 +17,7 @@ class Genre(models.Model):
     name = models.CharField(max_length=200)
 
     def get_absolute_url(self):
-        return reverse('genre', args=[self.id])
+        return reverse('genre', args=[self.id, slugify(self.name)])
 
 
 class Style(models.Model):
@@ -26,6 +26,9 @@ class Style(models.Model):
     (Basically a tag)
     """
     name = models.CharField(max_length=200)
+
+    def get_absolute_url(self):
+        return reverse('style', args=[self.id, slugify(self.name)])
 
 
 class Artist(models.Model):
@@ -44,7 +47,7 @@ class Artist(models.Model):
         return "{}: {}".format(self.id, self.name)
 
     def get_absolute_url(self):
-        return reverse('artist', args=[self.id])
+        return reverse('artist', args=[self.id, slugify(self.name)])
 
 
 class Label(models.Model):

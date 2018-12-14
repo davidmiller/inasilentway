@@ -7,6 +7,7 @@ from dateutil import parser
 import discogs_client
 from django.conf import settings
 from django.db import transaction
+import requests
 
 from inasilentway import models
 
@@ -119,6 +120,10 @@ def load_record(record_data):
 
     except discogs_client.exceptions.HTTPError:
         print('Discogs API rate limit exceeded, sleeping for 61s')
+        time.sleep(61)
+        return load_record(record_data)
+    except requests.exceptions.ConnectionError:
+        print('"Connection error", sleeping for 61s')
         time.sleep(61)
         return load_record(record_data)
 

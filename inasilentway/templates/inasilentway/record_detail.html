@@ -67,10 +67,17 @@
         <div class="flex pb2">
           <div class="fl w-20 b">Styles:</div>
           {% for style in record.styles.all  %}
-            {{ style.name }}{% if not forloop.last %},{% endif %}
+            <a href="{{ style.get_absolute_url }}">
+              {{ style.name }}
+            </a>{% if not forloop.last %},&nbsp;{% endif %}
           {% endfor %}
         </div>
       {% endif %}
+
+      <div class="flex pb2">
+        <div class="fl w-20 b">Added:</div>
+        <div class="fl w-80">{{ record.added }}</div>
+      </div>
 
       {% if record.notes %}
         <div class="flex pb2">

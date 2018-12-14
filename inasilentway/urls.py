@@ -23,17 +23,22 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', views.HomeView.as_view(), name='home'),
 
+    # Different views of records - detail, edit, alternative lists
     path('record/<int:pk>/<slug>', views.RecordView.as_view(), name='record'),
     path(
         'record/delete/<int:pk>/',
         views.DeleteRecordView.as_view(),
         name='delete-record'),
 
-    path('artist/<int:pk>/', views.ArtistView.as_view(), name='artist'),
-    path('genre/<int:pk>/', views.GenreView.as_view(), name='genre'),
+    path('genre/<int:pk>/<slug>/', views.GenreView.as_view(), name='genre'),
     path('label/<int:pk>', views.LabelView.as_view(), name='label'),
+    path('style/<int:pk>/<slug>/', views.StyleView.as_view(), name='style'),
     path('search/', views.SearchView.as_view(), name='search'),
 
+    # Artist views
+    path('artist/<int:pk>/<slug>/', views.ArtistView.as_view(), name='artist'),
+
+    # Last.fm / listening history views
     path('scrobbles/', views.ScrobbleListView.as_view(), name='scrobble-list'),
     path(
         'scrobbles/recently-scrobbled-records/',

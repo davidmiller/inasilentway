@@ -13,7 +13,7 @@ from django.views.generic import ListView, DetailView, TemplateView
 from django.views.generic.edit import DeleteView, FormView
 
 from inasilentway import forms, lastfm
-from inasilentway.models import Record, Artist, Genre, Label, Scrobble
+from inasilentway.models import Record, Artist, Genre, Label, Scrobble, Style
 
 
 class RecordListView(ListView):
@@ -78,6 +78,25 @@ class GenreView(RecordListView):
     def get_queryset(self):
         qs = Record.objects.filter(
             genres=self.genre
+        ).distinct().order_by(self.get_sort())
+        self.num_records = qs.count()
+        return qs
+
+
+class StyleView(RecordListView):
+    """
+    Displays our standard record list view limited to one particular
+    style (basically a Discogs tag).
+    """
+
+    def dispatch(self, *a, **k):
+        self.style = Style.objects.get(pk=self.kwargs['pk'])
+        self.page_subtitle = 'Style: {}'.format(self.style.name)
+        return super().dispatch(*a, **k)
+
+    def get_queryset(self):
+        qs = Record.objects.filter(
+            styles=self.style
         ).distinct().order_by(self.get_sort())
         self.num_records = qs.count()
         return qs
