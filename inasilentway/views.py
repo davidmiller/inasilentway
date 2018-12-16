@@ -4,6 +4,7 @@ Views for inasilentway
 import collections
 import datetime
 import random
+import time
 
 from django.db.models import Count, Q
 from django.shortcuts import redirect
@@ -133,27 +134,8 @@ class RecordView(DetailView):
 
     def scrobbles_by_year(self):
         record = self.get_object()
-
-        scrobbles = collections.defaultdict(int)
-
-        for scrobble in record.scrobble_set.all():
-
-            year = scrobble.datetime.year
-            scrobbles[year] += 1
-
-        by_year = sorted(
-            [[y, c] for y, c in scrobbles.items()], key=lambda x: x[0]
-        )
-
-        if scrobbles:
-            max_count = max(scrobbles.values())
-
-            for group in by_year:
-                perc = int(100 * (group[1] / float(max_count)))
-                group.append(perc)
-
-        by_year.reverse()
-        return by_year
+        scrobbles = record.scrobble_set.all()
+        return lastfm.scrobbles_by_year_for_queryset(scrobbles)
 
     def get_scrobble_form(self):
         today = timezone.make_aware(
@@ -196,27 +178,8 @@ class ArtistView(DetailView):
 
     def scrobbles_by_year(self):
         artist = self.get_object()
-
-        scrobbles = collections.defaultdict(int)
-
-        for scrobble in artist.scrobble_set.all():
-
-            year = scrobble.datetime.year
-            scrobbles[year] += 1
-
-        by_year = sorted(
-            [[y, c] for y, c in scrobbles.items()], key=lambda x: x[0]
-        )
-
-        if scrobbles:
-            max_count = max(scrobbles.values())
-
-            for group in by_year:
-                perc = int(100 * (group[1] / float(max_count)))
-                group.append(perc)
-
-        by_year.reverse()
-        return by_year
+        scrobbles = artist.scrobble_set.all()
+        return lastfm.scrobbles_by_year_for_queryset(scrobbles)
 
 
 class ScrobbleListView(ListView):
@@ -231,32 +194,7 @@ class ScrobbleListView(ListView):
         return Scrobble.objects.count()
 
     def get_scrobbles_by_year(self):
-        by_year = Scrobble.objects.all().order_by('timestamp')
-        first = by_year.first().datetime.year
-        last = by_year.last().datetime.year
-        counts = []
-
-        for i in range(first, (last + 1)):
-
-            start = datetime.datetime(i, 1, 1, 0, 0, 0)
-            end   = datetime.datetime(i, 12, 31, 23, 59, 59)
-
-            counts.append(
-                [i, Scrobble.objects.filter(
-                    datetime__gte=start,
-                    datetime__lte=end
-                ).count()]
-            )
-
-        counts.reverse()
-        max_count = max([c[1] for c in counts])
-
-        for group in counts:
-            perc = int(100 * (group[1] / float(max_count)))
-            group.append(perc)
-
-        return counts
-
+        return lastfm.total_scrobbles_by_year()
 
 class UnlinkedScrobbleView(ListView):
     template_name = 'inasilentway/unlinked_scrobbles.html'
@@ -302,6 +240,10 @@ class RecentlyScrobbledRecordsView(TemplateView):
 
 
 class ListeningHistoryView(TemplateView):
+    """
+    Presents an overview of listening history, with methods to calculate
+    various numbers, lists and charts.
+    """
     template_name = 'inasilentway/listening_history.html'
 
     def get_top_artists(self):
@@ -311,3 +253,42 @@ class ListeningHistoryView(TemplateView):
     def get_top_lastfm_artists(self):
         return Scrobble.objects.all().values(
             'artist').annotate(total=Count('artist')).order_by('-total')[:20]
+
+    def _scrobbles_per_day_between(self, start, end):
+        """
+        Given two datetime.dates return the average number of
+        scrobbles per day between them
+        """
+        days = (end - start).days
+        qs   = Scrobble.objects.filter(
+            timestamp__gte=time.mktime(start.timetuple()),
+            timestamp__lt=time.mktime(end.timetuple())
+        )
+        count = qs.count()
+
+        return {
+            'per_day': int(float(count) / days),
+            'count'  : count
+        }
+
+    def get_scrobbles_per_day_all_time(self):
+        qs    = Scrobble.objects.all().order_by('timestamp')
+        start = qs.first().ts_as_dt()
+        end   = qs.last().ts_as_dt()
+        return self._scrobbles_per_day_between(start, end)
+
+    def get_scrobbles_per_day_this_year(self):
+        today = datetime.date.today()
+        start = datetime.datetime(today.year, 1, 1)
+        end   = datetime.datetime.combine(
+            today, datetime.datetime.min.time()
+        ) + datetime.timedelta(days=1)
+        return self._scrobbles_per_day_between(start, end)
+
+    def get_scrobbles_per_day_this_month(self):
+        today = datetime.date.today()
+        year  = today.year
+        month = today.month
+        start = datetime.datetime(year, month, 1)
+        end   = datetime.datetime(year, month, today.day +1)
+        return self._scrobbles_per_day_between(start, end)

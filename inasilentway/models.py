@@ -139,7 +139,10 @@ class Scrobble(models.Model):
             self.ts_as_str()
         )
 
-    def ts_as_str(self):
+    def ts_as_dt(self):
         return timezone.make_aware(
             datetime.datetime.fromtimestamp(self.timestamp)
-        ).strftime('%d %b %y %H:%M')
+        )
+
+    def ts_as_str(self):
+        return self.ts_as_dt().strftime('%d %b %y %H:%M')

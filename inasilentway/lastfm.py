@@ -1,6 +1,7 @@
 """
 Interacting with Last.fm from Inasilentway
 """
+import collections
 import datetime
 import time
 
@@ -10,8 +11,25 @@ import pylast
 
 from inasilentway.models import Scrobble
 
+LASTFM_PRE_SUBMIT_SUBS = {
+    #
+    # Sometimes when you give the Last.fm scrobble API the name of something
+    # their parser throws it away. So for some selected values we substitue
+    # them pre submission (only to re-substitute them once we've gotten the
+    # data back).
+    #
+    # It's an all-round win for 'being clever'.
+    #
+    'album': {
+        "Getz & J.J. 'Live' - Stan Getz & J.J. Johnson": "Getz & J.J. 'Live'"
+    },
+    'artist': {},
+    'title': {}
+}
+
 
 LASTFM_CORRECTIONS = {
+    #
     # Sometimes Last.fm "corrects" album titles.
     # Where these are different to Discogs album title versions this means we
     # are unable to match the scrobbles to the album.
@@ -26,9 +44,16 @@ LASTFM_CORRECTIONS = {
     },
 
     'artist': {
-        'Duke Ellington & His Orchestra': 'Duke Ellington And His Orchestra'
+        'Duke Ellington & His Orchestra': 'Duke Ellington And His Orchestra',
+        'Miles Davis Quintet': 'The Miles Davis Quintet',
     }
 }
+
+# Put the ones we mangled our side into the corrections dataset without
+# needing to re-type them
+for substitution_type in LASTFM_PRE_SUBMIT_SUBS:
+    for pre, post in LASTFM_PRE_SUBMIT_SUBS[substitution_type].items():
+        LASTFM_CORRECTIONS[substitution_type][post] = pre
 
 SPOTIFY_EQUIVALENTS = {
     'album': {
@@ -200,14 +225,20 @@ def scrobble_record(record, when):
     tracks = []
 
     for track in record.track_set.all():
-        tracks.append(
-            {
-                'artist'   : record.artist.first().name,
-                'title'    : track.title,
-                'album'    : record.title,
-                'timestamp': start_time
-            }
-        )
+        track_data = {
+            'artist'   : record.artist.first().name,
+            'title'    : track.title,
+            'album'    : record.title,
+        }
+
+        for datatype in track_data:
+            val = track_data[datatype]
+            if val in LASTFM_PRE_SUBMIT_SUBS[datatype]:
+                track_data[datatype] = LASTFM_PRE_SUBMIT_SUBS[datatype][val]
+
+        track_data['timestamp'] = start_time
+        tracks.append(track_data)
+
         if track.duration:
             mins, secs = track.duration.split(':')
             seconds = int(secs) + (int(mins) * 60)
@@ -215,4 +246,61 @@ def scrobble_record(record, when):
         else:
             start_time += (3 * 60) + 41
 
+    print(tracks)
     api.scrobble_many(tracks)
+
+
+"""
+Graphs
+"""
+
+def scrobbles_by_year_for_queryset(queryset):
+    # In memory grouping
+    scrobbles = collections.defaultdict(int)
+
+    for scrobble in queryset:
+
+        year = scrobble.datetime.year
+        scrobbles[year] += 1
+
+    by_year = sorted(
+        [[y, c] for y, c in scrobbles.items()], key=lambda x: x[0]
+    )
+
+    if scrobbles:
+        max_count = max(scrobbles.values())
+
+        for group in by_year:
+            perc = int(100 * (group[1] / float(max_count)))
+            group.append(perc)
+
+    by_year.reverse()
+    return by_year
+
+
+def total_scrobbles_by_year():
+    by_year = Scrobble.objects.all().order_by('timestamp')
+    first = by_year.first().datetime.year
+    last = by_year.last().datetime.year
+    counts = []
+
+    for i in range(first, (last + 1)):
+
+        start = datetime.datetime(i, 1, 1, 0, 0, 0)
+        end   = datetime.datetime(i, 12, 31, 23, 59, 59)
+
+        counts.append(
+            [i, Scrobble.objects.filter(
+                datetime__gte=start,
+                datetime__lte=end
+            ).count()]
+        )
+
+    counts.reverse()
+    max_count = max([c[1] for c in counts])
+
+    for group in counts:
+        perc = int(100 * (group[1] / float(max_count)))
+        group.append(perc)
+
+    return counts

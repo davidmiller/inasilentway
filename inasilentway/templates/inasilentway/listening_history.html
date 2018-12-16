@@ -1,11 +1,76 @@
 {% extends 'base.html' %}
 {% load humanize %}
 {% load inasilentway %}
+
 {% block page_title %}
   {% include 'partials/lastfm_header.html' %}
 {% endblock %}
+
 {% block content %}
   <div class="flex">
+
+    {% with view.get_scrobbles_per_day_all_time as total %}
+    <div class="w-20">
+      <h2 class="f6 ttu bb">
+        Scrobbles
+      </h2>
+      <p class="b f4">
+        {{ total.count | intcomma }}
+      </p>
+    </div>
+
+    <div class="w-20">
+      <h2 class="f6 ttu bb">
+        Per Day
+      </h2>
+      <p class="b f4">
+        {{ total.per_day }}
+      </p>
+    </div>
+    {% endwith %}
+
+    {% with view.get_scrobbles_per_day_this_year as total %}
+    <div class="w-20">
+      <h2 class="f6 ttu bb">
+        This Year
+      </h2>
+      <p class="b f4">
+        {{ total.count | intcomma }}
+      </p>
+    </div>
+    <div class="w-20">
+      <h2 class="f6 ttu bb">
+        Per Day
+      </h2>
+      <p class="b f4">
+        {{ total.per_day }}
+      </p>
+    </div>
+    {% endwith %}
+
+    {% with view.get_scrobbles_per_day_this_month as total %}
+    <div class="w-20">
+      <h2 class="f6 ttu bb">
+        This Month
+      </h2>
+      <p class="b f4">
+        {{ total.count | intcomma }}
+      </p>
+    </div>
+    <div class="w-20">
+      <h2 class="f6 ttu bb">
+        Per Day
+      </h2>
+      <p class="b f4">
+        {{ total.per_day }}
+      </p>
+    </div>
+    {% endwith %}
+
+
+  </div>
+  <div class="flex">
+
     <div class="w-50 pr3 br">
       <h2 class="f6 ttu bb mt3 mb3">
         Top Artists (linked)
