@@ -6,9 +6,11 @@
     </div>
     <div class="w-80">
       <div class="flex">
-        <div class="w-{{ proportion }} bg-dark-green washed-blue pa1 mb1 mt1">
-          {{ value | intcomma }}
-        </div>
+        {% ifnotequal value 0 %}
+          <div class="w-{{ proportion }} bg-dark-green washed-blue pa1 mb1 mt1">
+            <span class="f6">{{ value | intcomma }}</span>
+          </div>
+        {% endifnotequal %}
       </div>
     </div>
   </div>

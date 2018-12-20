@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 {% load humanize %}
+{% load inasilentway %}
+
 {% block page_title %}
   <div class="flex">
     <div class="w-20">
@@ -112,12 +114,6 @@
       </ol>
       </div>
 
-      <!-- <div class="fl w-10"> -->
-      <!--   <div class="mb3 "> -->
-      <!--     <img src="{{ object.thumb }}" /> -->
-      <!--   </div> -->
-      <!-- </div> -->
-
     </div>
 
     <div class="fl w-100 mt3 mb3 ">
@@ -127,20 +123,7 @@
       <div class="flex">
         <div class="w-50 pr3 br">
 
-          {% for year, count, proportion in view.scrobbles_by_year  %}
-            <div class="flex">
-              <div class="w-20 mb1 mt1 pa1">
-                {{ year }}
-              </div>
-              <div class="w-80">
-                <div class="flex">
-                  <div class="w-{{ proportion }} bg-dark-green washed-blue pa1 mb1 mt1">
-                    {{ count }}
-                  </div>
-                </div>
-              </div>
-            </div>
-          {% endfor %}
+          {% bar_chart view.scrobbles_by_year %}
 
         </div>
         <div class="w-50">

@@ -246,6 +246,7 @@ class ListeningHistoryView(TemplateView):
     """
     template_name = 'inasilentway/listening_history.html'
 
+    # Top artist lists
     def get_top_artists(self):
         return Artist.objects.all().annotate(
             total=Count('scrobble')).order_by('-total')[:20]
@@ -253,6 +254,8 @@ class ListeningHistoryView(TemplateView):
     def get_top_lastfm_artists(self):
         return Scrobble.objects.all().values(
             'artist').annotate(total=Count('artist')).order_by('-total')[:20]
+
+    # Count / Avg pairs
 
     def _scrobbles_per_day_between(self, start, end):
         """
@@ -292,3 +295,27 @@ class ListeningHistoryView(TemplateView):
         start = datetime.datetime(year, month, 1)
         end   = datetime.datetime(year, month, today.day +1)
         return self._scrobbles_per_day_between(start, end)
+
+    # Graphs
+
+    def get_scrobble_graph_this_month(self):
+        now = datetime.datetime.now()
+        start = datetime.datetime(now.year, now.month, 1)
+        queryset = Scrobble.objects.filter(
+            timestamp__gte=time.mktime(start.timetuple()),
+            timestamp__lt=time.mktime(now.timetuple())
+        )
+        return lastfm.scrobbles_by_day_for_queryset(queryset)
+
+    def get_scrobble_graph_this_year(self):
+        print('here')
+        now = datetime.datetime.now()
+        start = datetime.datetime(now.year, 1, 1)
+        qs = Scrobble.objects.filter(
+            timestamp__gte=time.mktime(start.timetuple()),
+            timestamp__lt=time.mktime(now.timetuple())
+        )
+        return lastfm.scrobbles_by_month_for_queryset(qs)
+
+    def get_scrobble_graph_all_time(self):
+        return lastfm.total_scrobbles_by_year()

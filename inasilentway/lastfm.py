@@ -10,6 +10,7 @@ from django.utils import timezone
 import pylast
 
 from inasilentway.models import Scrobble
+from inasilentway import utils
 
 LASTFM_PRE_SUBMIT_SUBS = {
     #
@@ -27,6 +28,16 @@ LASTFM_PRE_SUBMIT_SUBS = {
     'title': {}
 }
 
+#
+# Some records have additional tracks - for instance a 'bonus CD' or
+# '45 when this happens we exclude them, for now with hard coded Track.exclude()
+# criteria. Later we expect to be able to specify either sides or tracks in the
+# UI itself.
+#
+LASTFM_PRE_SUBMIT_TRACKS = {
+    # Title:Artist.first().name : {method: {**kwargs}}
+    'Wave:Antonio Carlos Jobim': {'exclude': {'position__startswith': 'CD'}},
+}
 
 LASTFM_CORRECTIONS = {
     #
@@ -37,6 +48,7 @@ LASTFM_CORRECTIONS = {
     # We keep a mapping of known corrections here so we can move between them
     #
     'album': {
+        # lastfm_name : disgogs_name
         'Desafinado: Bossa Nova & Jazz Samba': 'Desafinado Coleman Hawkins Plays Bossa Nova & Jazz Samba', # noqa
         'Oscar Peterson Plays the Duke Ellington Songbook': 'The Duke Ellington Songbook', # noqa
         'Standard Time Vol.2 - Intimacy Calling': 'Standard Time Vol. 2 (Intimacy Calling)', # noqa
@@ -44,8 +56,11 @@ LASTFM_CORRECTIONS = {
     },
 
     'artist': {
+        # lastfm name : discogs name
         'Duke Ellington & His Orchestra': 'Duke Ellington And His Orchestra',
         'Miles Davis Quintet': 'The Miles Davis Quintet',
+        'Clifford Brown & Max Roach': 'Clifford Brown And Max Roach',
+        'Antônio Carlos Jobim':'Antonio Carlos Jobim'
     }
 }
 
@@ -223,10 +238,19 @@ def scrobble_record(record, when):
     """
     start_time = time.mktime(when.timetuple())
     tracks = []
+    artist = record.artist.first().name
+    track_set = record.track_set.all()
 
-    for track in record.track_set.all():
+    combined = ':'.join([record.title, artist])
+
+    if combined in LASTFM_PRE_SUBMIT_TRACKS:
+        for method, args in LASTFM_PRE_SUBMIT_TRACKS[combined].items():
+            meth = getattr(track_set, method)
+            track_set = meth(**args)
+
+    for track in track_set:
         track_data = {
-            'artist'   : record.artist.first().name,
+            'artist'   : artist,
             'title'    : track.title,
             'album'    : record.title,
         }
@@ -246,7 +270,8 @@ def scrobble_record(record, when):
         else:
             start_time += (3 * 60) + 41
 
-    print(tracks)
+    for track in tracks:
+        print(track)
     api.scrobble_many(tracks)
 
 
@@ -254,28 +279,98 @@ def scrobble_record(record, when):
 Graphs
 """
 
+def scrobbles_by_day_for_queryset(queryset):
+    queryset = queryset.order_by('timestamp')
+    last  = queryset.last().ts_as_dt()
+    counts = []
+
+    for i in range(1, (last.day +1)):
+        start = time.mktime(
+            datetime.datetime(last.year, last.month, i, 0, 0, 0).timetuple()
+        )
+        end   = time.mktime(
+            datetime.datetime(last.year, last.month, i, 23, 59, 59).timetuple()
+        )
+
+        counts.append(
+            [i, queryset.filter(
+                timestamp__gte=start,
+                timestamp__lte=end
+            ).count()]
+        )
+
+    counts.reverse()
+    max_count = max([c[1] for c in counts])
+
+    for group in counts:
+        group.append(utils.percent_of(group[1], max_count))
+
+    return counts
+
+
+def scrobbles_by_month_for_queryset(queryset):
+    queryset = queryset.order_by('timestamp')
+    first  = queryset.first().ts_as_dt()
+    counts = []
+
+    for i in range(1, 13):
+        start = time.mktime(
+            datetime.datetime(first.year, i, 1, 0, 0, 0).timetuple()
+        )
+
+        if i == 12:
+            end = time.mktime(
+                datetime.datetime((first.year + 1), 1, 1, 0, 0).timetuple()
+            )
+        else:
+            end   = time.mktime(
+                datetime.datetime(first.year, (i + 1), 1, 0, 0).timetuple()
+            )
+
+        counts.append(
+            [i, queryset.filter(
+                timestamp__gte=start,
+                timestamp__lt=end
+            ).count()]
+        )
+
+    counts.reverse()
+    max_count = max([c[1] for c in counts])
+
+    print(counts)
+
+    for group in counts:
+        group.append(utils.percent_of(group[1], max_count))
+
+    return counts
+
+
 def scrobbles_by_year_for_queryset(queryset):
-    # In memory grouping
-    scrobbles = collections.defaultdict(int)
+    if queryset.count() == 0:
+        return []
+    queryset = queryset.order_by('timestamp')
+    first = queryset.first().datetime.year
+    last  = queryset.last().datetime.year
+    counts = []
 
-    for scrobble in queryset:
+    for i in range(first, (last +1)):
+        start = datetime.datetime(i, 1, 1, 0, 0, 0)
+        end   = datetime.datetime(i, 12, 31, 23, 59, 59)
 
-        year = scrobble.datetime.year
-        scrobbles[year] += 1
+        counts.append(
+            [i, queryset.filter(
+                datetime__gte=start,
+                datetime__lte=end
+            ).count()]
+        )
 
-    by_year = sorted(
-        [[y, c] for y, c in scrobbles.items()], key=lambda x: x[0]
-    )
+    counts.reverse()
+    max_count = max([c[1] for c in counts])
 
-    if scrobbles:
-        max_count = max(scrobbles.values())
+    for group in counts:
+        group.append(utils.percent_of(group[1], max_count))
 
-        for group in by_year:
-            perc = int(100 * (group[1] / float(max_count)))
-            group.append(perc)
-
-    by_year.reverse()
-    return by_year
+    return counts
 
 
 def total_scrobbles_by_year():
