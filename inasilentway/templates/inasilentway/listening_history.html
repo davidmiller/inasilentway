@@ -9,108 +9,146 @@
 {% block content %}
   <div class="flex">
 
-    {% with view.get_scrobbles_per_day_all_time as total %}
-    <div class="w-20">
-      <h2 class="f6 ttu bb">
-        Scrobbles
-      </h2>
-      <p class="b f4">
-        {{ total.count | intcomma }}
-      </p>
+    <div class="w-30 mr5 ">
+      {% with view.get_scrobbles_per_day_all_time as total %}
+        <div class="flex">
+          <div class="w-50">
+            <h2 class="f6 ttu bb">
+              Scrobbles
+            </h2>
+            <p class="b f4">
+              {{ total.count | intcomma }}
+            </p>
+          </div>
+
+          <div class="w-50">
+            <h2 class="f6 ttu bb">
+              Per Day
+            </h2>
+            <p class="b f4">
+              {{ total.per_day }}
+            </p>
+          </div>
+        </div>
+      {% endwith %}
+      <div class="flex">
+        <div class="w-100">
+          {% bar_chart view.get_scrobble_graph_all_time %}
+        </div>
+      </div>
     </div>
 
-    <div class="w-20">
-      <h2 class="f6 ttu bb">
-        Per Day
-      </h2>
-      <p class="b f4">
-        {{ total.per_day }}
-      </p>
-    </div>
-    {% endwith %}
 
-    {% with view.get_scrobbles_per_day_this_year as total %}
-    <div class="w-20">
-      <h2 class="f6 ttu bb">
-        This Year
-      </h2>
-      <p class="b f4">
-        {{ total.count | intcomma }}
-      </p>
+    <div class="w-30 mr5 ">
+      {% with view.get_scrobbles_per_day_this_year as total %}
+        <div class="flex">
+          <div class="w-50">
+            <h2 class="f6 ttu bb">
+              This Year
+            </h2>
+            <p class="b f4">
+              {{ total.count | intcomma }}
+            </p>
+          </div>
+          <div class="w-50">
+            <h2 class="f6 ttu bb">
+              Per Day
+            </h2>
+            <p class="b f4">
+              {{ total.per_day }}
+            </p>
+          </div>
+        </div>
+      {% endwith %}
+      <div class="flex">
+        <div class="w-100">
+          {% bar_chart view.get_scrobble_graph_this_year %}
+        </div>
+      </div>
     </div>
-    <div class="w-20">
-      <h2 class="f6 ttu bb">
-        Per Day
-      </h2>
-      <p class="b f4">
-        {{ total.per_day }}
-      </p>
-    </div>
-    {% endwith %}
 
-    {% with view.get_scrobbles_per_day_this_month as total %}
-    <div class="w-20">
-      <h2 class="f6 ttu bb">
-        This Month
-      </h2>
-      <p class="b f4">
-        {{ total.count | intcomma }}
-      </p>
-    </div>
-    <div class="w-20">
-      <h2 class="f6 ttu bb">
-        Per Day
-      </h2>
-      <p class="b f4">
-        {{ total.per_day }}
-      </p>
-    </div>
-    {% endwith %}
-  </div>
-
-  <div class="flex">
-    <div class="w-30 pr3 mr5">
-      {% bar_chart view.get_scrobble_graph_all_time %}
-    </div>
-    <div class="w-30 pr3 mr5">
-      {% bar_chart view.get_scrobble_graph_this_year %}
-    </div>
     <div class="w-30">
-      {% bar_chart view.get_scrobble_graph_this_month %}
+      {% with view.get_scrobbles_per_day_this_month as total %}
+        <div class="flex">
+          <div class="w-50">
+            <h2 class="f6 ttu bb">
+              This Month
+            </h2>
+            <p class="b f4">
+              {{ total.count | intcomma }}
+            </p>
+          </div>
+          <div class="w-50">
+            <h2 class="f6 ttu bb">
+              Per Day
+            </h2>
+            <p class="b f4">
+              {{ total.per_day }}
+            </p>
+          </div>
+        </div>
+      {% endwith %}
+      <div class="flex">
+        <div class="w-100">
+          {% bar_chart view.get_scrobble_graph_this_month %}
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="flex">
+  <h2 class="f6 ttu bb mt3 mb3">
+    Top Artists
+  </h2>
 
-    <div class="w-50 pr3 br">
-      <h2 class="f6 ttu bb mt3 mb3">
-        Top Artists (linked)
-      </h2>
-      <ul class="list pl0">
-        {% for artist in view.get_top_artists %}
+  <div class="flex">
+    <div class="w-30 mr5">
+      <ol class="pl4">
+        {% for artist in view.get_top_lastfm_artists_all_time %}
           <li>
-            <a href="{{ artist.get_absolute_url }}">
-              {{ artist.name }}
-            </a>
+            {{ artist.artist }}
             <span class="fr">{{ artist.total | intcomma }}</span>
           </li>
         {% endfor %}
-      </ul>
+      </ol>
     </div>
 
-    <div class="w-50 pl3">
-      <h2 class="f6 ttu bb mt3 mb3">
-        Top Artists (last.fm)
-      </h2>
-      <ul class="list pl0">
-        {% for artist in view.get_top_lastfm_artists %}
+    <div class="w-30 mr5">
+      <ol class="pl4">
+        {% for artist in view.get_top_lastfm_artists_this_year %}
           <li>
-              {{ artist.artist }}
-              <span class="fr">{{ artist.total | intcomma }}</span>
+            {{ artist.artist }}
+            <span class="fr">{{ artist.total | intcomma }}</span>
           </li>
         {% endfor %}
-      </ul>
+      </ol>
+    </div>
+
+    <div class="w-30 mr5">
+      <ol class="pl4">
+        {% for artist in view.get_top_lastfm_artists_this_month %}
+          <li>
+            {{ artist.artist }}
+            <span class="fr">{{ artist.total | intcomma }}</span>
+          </li>
+        {% endfor %}
+      </ol>
     </div>
 
   </div>
+
+  <h2 class="f6 ttu bb mt3 mb3">
+    Top Artists (linked)
+  </h2>
+  <ol class="pl4">
+    {% for artist in view.get_top_artists %}
+      <li>
+        <a href="{{ artist.get_absolute_url }}">
+          {{ artist.name }}
+        </a>
+        <span class="fr">{{ artist.total | intcomma }}</span>
+      </li>
+    {% endfor %}
+  </ol>
+
+
 {% endblock %}

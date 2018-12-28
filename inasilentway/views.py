@@ -251,8 +251,20 @@ class ListeningHistoryView(TemplateView):
         return Artist.objects.all().annotate(
             total=Count('scrobble')).order_by('-total')[:20]
 
-    def get_top_lastfm_artists(self):
+    def get_top_lastfm_artists_all_time(self):
         return Scrobble.objects.all().values(
+            'artist').annotate(total=Count('artist')).order_by('-total')[:20]
+
+    def get_top_lastfm_artists_this_year(self):
+        today = datetime.date.today()
+        start = time.mktime(datetime.datetime(today.year, 1, 1, 0, 0).timetuple())
+        return Scrobble.objects.filter(timestamp__gte=start).values(
+            'artist').annotate(total=Count('artist')).order_by('-total')[:20]
+
+    def get_top_lastfm_artists_this_month(self):
+        today = datetime.date.today()
+        start = time.mktime(datetime.datetime(today.year, today.month, 1, 0, 0).timetuple())
+        return Scrobble.objects.filter(timestamp__gte=start).values(
             'artist').annotate(total=Count('artist')).order_by('-total')[:20]
 
     # Count / Avg pairs
@@ -308,7 +320,6 @@ class ListeningHistoryView(TemplateView):
         return lastfm.scrobbles_by_day_for_queryset(queryset)
 
     def get_scrobble_graph_this_year(self):
-        print('here')
         now = datetime.datetime.now()
         start = datetime.datetime(now.year, 1, 1)
         qs = Scrobble.objects.filter(

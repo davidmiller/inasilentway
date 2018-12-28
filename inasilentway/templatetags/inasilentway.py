@@ -23,5 +23,9 @@ def this_url_replace(context, **kwargs):
 
 
 @register.inclusion_tag('partials/bar_chart.html')
-def bar_chart(data_fn):
-    return {'data': data_fn}
+def bar_chart(data):
+    chart_context = {
+        'data': data,
+        'len' : len(data)
+    }
+    return chart_context

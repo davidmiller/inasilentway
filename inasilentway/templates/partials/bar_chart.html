@@ -1,13 +1,13 @@
 {% load humanize %}
 {% for y, value, proportion in data  %}
   <div class="flex">
-    <div class="w-20 mb1 mt1 pa1">
+    <div class="w-20 {% if len > 20 %}mb0 mt0 pa0{% else %}mb1 mt1 pa1{% endif %}">
       {{ y }}
     </div>
     <div class="w-80">
       <div class="flex">
         {% ifnotequal value 0 %}
-          <div class="w-{{ proportion }} bg-dark-green washed-blue pa1 mb1 mt1">
+          <div class="w-{{ proportion }} bg-dark-green washed-blue {% if len > 20 %}h1 pa0 mb0 mt0{% else %}pa1 mb1 mt1{% endif %}">
             <span class="f6">{{ value | intcomma }}</span>
           </div>
         {% endifnotequal %}

@@ -49,18 +49,18 @@ LASTFM_CORRECTIONS = {
     #
     'album': {
         # lastfm_name : disgogs_name
-        'Desafinado: Bossa Nova & Jazz Samba': 'Desafinado Coleman Hawkins Plays Bossa Nova & Jazz Samba', # noqa
+        'Desafinado: Bossa Nova & Jazz Samba'             : 'Desafinado Coleman Hawkins Plays Bossa Nova & Jazz Samba', # noqa
         'Oscar Peterson Plays the Duke Ellington Songbook': 'The Duke Ellington Songbook', # noqa
-        'Standard Time Vol.2 - Intimacy Calling': 'Standard Time Vol. 2 (Intimacy Calling)', # noqa
-        'White Light/White Heat': 'White Light / White Heat',
+        'Standard Time Vol.2 - Intimacy Calling'          : 'Standard Time Vol. 2 (Intimacy Calling)', # noqa
+        'White Light/White Heat'                          : 'White Light / White Heat',
     },
 
     'artist': {
         # lastfm name : discogs name
         'Duke Ellington & His Orchestra': 'Duke Ellington And His Orchestra',
-        'Miles Davis Quintet': 'The Miles Davis Quintet',
-        'Clifford Brown & Max Roach': 'Clifford Brown And Max Roach',
-        'Antônio Carlos Jobim':'Antonio Carlos Jobim'
+        'Miles Davis Quintet'           : 'The Miles Davis Quintet',
+        'Clifford Brown & Max Roach'    : 'Clifford Brown And Max Roach',
+        'Antônio Carlos Jobim'          :'Antonio Carlos Jobim'
     }
 }
 
