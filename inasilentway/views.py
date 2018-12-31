@@ -10,6 +10,7 @@ from django.db.models import Count, Q
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django.views.generic import ListView, DetailView, TemplateView
 from django.views.generic.edit import DeleteView, FormView
 
@@ -118,6 +119,19 @@ class LabelView(RecordListView):
         return qs
 
 
+class UnplayedView(RecordListView):
+    """
+    Displays our standard record list view limited to records
+    that do not yet have a linked scrobble.
+    """
+    def get_queryset(self):
+        qs = self.model.objects.filter(
+            scrobble__isnull=True
+        )
+        self.num_records = qs.count()
+        return qs
+
+
 class SearchView(RecordListView):
 
     def get_queryset(self):
@@ -131,6 +145,10 @@ class SearchView(RecordListView):
 
 class RecordView(DetailView):
     model = Record
+
+    def page_title(self):
+        record = self.get_object()
+        return record.title
 
     def scrobbles_by_year(self):
         record = self.get_object()
@@ -196,6 +214,7 @@ class ScrobbleListView(ListView):
     def get_scrobbles_by_year(self):
         return lastfm.total_scrobbles_by_year()
 
+
 class UnlinkedScrobbleView(ListView):
     template_name = 'inasilentway/unlinked_scrobbles.html'
     model = Scrobble
@@ -206,9 +225,9 @@ class UnlinkedScrobbleView(ListView):
 
     def get_queryset(self):
         qs = Scrobble.objects.filter(
-            isw_album__isnull=True,
-            album__isnull=False
-        )
+            isw_track__isnull=True,
+            title__isnull=False
+        ).order_by('-timestamp')
         self.num_scrobbles = qs.count()
         return qs
 
@@ -249,23 +268,49 @@ class ListeningHistoryView(TemplateView):
     # Top artist lists
     def get_top_artists(self):
         return Artist.objects.all().annotate(
-            total=Count('scrobble')).order_by('-total')[:20]
+            total=Count('scrobble')).order_by('-total')[:25]
 
+    def _top_scrobbles_for_qs(self, qs):
+        return qs.values(
+            'artist').annotate(total=Count('artist')).order_by('-total')[:25]
+
+    @cached_property
     def get_top_lastfm_artists_all_time(self):
-        return Scrobble.objects.all().values(
-            'artist').annotate(total=Count('artist')).order_by('-total')[:20]
+        return self._top_scrobbles_for_qs(Scrobble.objects.all())
 
     def get_top_lastfm_artists_this_year(self):
-        today = datetime.date.today()
-        start = time.mktime(datetime.datetime(today.year, 1, 1, 0, 0).timetuple())
-        return Scrobble.objects.filter(timestamp__gte=start).values(
-            'artist').annotate(total=Count('artist')).order_by('-total')[:20]
+        today   = datetime.date.today()
+        start   = time.mktime(datetime.datetime(today.year, 1, 1, 0, 0).timetuple())
+        scrobbles = self._top_scrobbles_for_qs(
+            Scrobble.objects.filter(timestamp__gte=start)
+        )
+
+        all_time_rankings = {}
+        for i, s in enumerate(self.get_top_lastfm_artists_all_time):
+            all_time_rankings[s['artist']] = i+1
+
+        for i, scrobble in enumerate(scrobbles):
+            ranking = dict(icon='&nwArr;', klass='gold')
+
+            i += 1
+            if scrobble['artist'] in all_time_rankings:
+                all_time = all_time_rankings[scrobble['artist']]
+                if all_time == i:
+                    ranking = dict(icon='&mapstoleft;', klass='navy')
+                elif all_time > i:
+                    ranking = dict(icon='&uparrow;', klass='dark-green')
+                elif all_time < i:
+                    ranking = dict(icon='&downarrow;', klass='dark-red')
+
+            scrobble['all_time_ranking'] = ranking
+
+        return scrobbles
 
     def get_top_lastfm_artists_this_month(self):
         today = datetime.date.today()
         start = time.mktime(datetime.datetime(today.year, today.month, 1, 0, 0).timetuple())
         return Scrobble.objects.filter(timestamp__gte=start).values(
-            'artist').annotate(total=Count('artist')).order_by('-total')[:20]
+            'artist').annotate(total=Count('artist')).order_by('-total')[:25]
 
     # Count / Avg pairs
 
@@ -305,7 +350,12 @@ class ListeningHistoryView(TemplateView):
         year  = today.year
         month = today.month
         start = datetime.datetime(year, month, 1)
-        end   = datetime.datetime(year, month, today.day +1)
+        try:
+            end   = datetime.datetime(year, month, today.day +1)
+        except ValueError:
+            end = datetime.datetime(year, month, today.day)
+            end = end + datetime.timedelta(days=1)
+
         return self._scrobbles_per_day_between(start, end)
 
     # Graphs

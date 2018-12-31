@@ -48,19 +48,23 @@ LASTFM_CORRECTIONS = {
     # We keep a mapping of known corrections here so we can move between them
     #
     'album': {
-        # lastfm_name : disgogs_name
+        # lastfm name                                     : disgogs_name
         'Desafinado: Bossa Nova & Jazz Samba'             : 'Desafinado Coleman Hawkins Plays Bossa Nova & Jazz Samba', # noqa
         'Oscar Peterson Plays the Duke Ellington Songbook': 'The Duke Ellington Songbook', # noqa
         'Standard Time Vol.2 - Intimacy Calling'          : 'Standard Time Vol. 2 (Intimacy Calling)', # noqa
-        'White Light/White Heat'                          : 'White Light / White Heat',
+        'White Light/White Heat'                          : 'White Light / White Heat', # noqa
+        'Thelonious Monk Plays Duke Ellington'            : 'Plays Duke Ellington', # noaa
     },
 
     'artist': {
-        # lastfm name : discogs name
+        # lastfm name                   : discogs name
         'Duke Ellington & His Orchestra': 'Duke Ellington And His Orchestra',
         'Miles Davis Quintet'           : 'The Miles Davis Quintet',
         'Clifford Brown & Max Roach'    : 'Clifford Brown And Max Roach',
-        'Antônio Carlos Jobim'          :'Antonio Carlos Jobim'
+        'Antônio Carlos Jobim'          : 'Antonio Carlos Jobim',
+        'N.W.A'                         : 'N.W.A.',
+        'Mark Lanegan'                  : 'Mark Lanegan Band',
+        'Oscar Peterson Trio'           : 'The Oscar Peterson Trio',
     }
 }
 
@@ -97,8 +101,6 @@ def match_artist(artist_name):
     )
 
     if len(artist_matches) == 0:
-        if artist_name in LASTFM_CORRECTIONS['artist']:
-            return match_artist(LASTFM_CORRECTIONS['artist'][artist_name])
         return None
 
     if len(artist_matches) == 1:
@@ -109,9 +111,11 @@ def match_artist(artist_name):
         print(artist_matches)
 
 
-def match(artist, album, title):
+def _match(artist, album, title):
     """
     Return matches if we have them or none
+    e.g. (The Hives, Veni Vidi Viscious, Main Offender)
+    or (None, None, None)
     """
     from inasilentway.models import Record
 
@@ -119,9 +123,6 @@ def match(artist, album, title):
     match_track = None
 
     matching_artist = match_artist(artist)
-
-    if album in LASTFM_CORRECTIONS['album']:
-        album = LASTFM_CORRECTIONS['album'][album]
 
     album_matches = Record.objects.filter(
         title__iexact=album,
@@ -139,17 +140,51 @@ def match(artist, album, title):
         return matching_artist, match_album, match_track
 
     for track in match_album.track_set.all():
-        if track.title.lower() == title.lower():
+        if track.title.lower().strip() == title.lower().strip():
             match_track = track
 
     return matching_artist, match_album, match_track
+
+
+def match(artist, album, title):
+    """
+    Given an ARTIST, ALBUM and track TITLE for a Last.fm scrobble,
+    match it against a Discogs record in our collection.
+
+    Run the match queries multiple times if no matches are found but
+    there are corrections found in our hard coded list.
+    """
+
+    if album in LASTFM_CORRECTIONS['album']:
+        album = LASTFM_CORRECTIONS['album'][album]
+
+    matching = _match(artist, album, title)
+
+    if all(matching):
+        return matching
+
+    if artist in LASTFM_CORRECTIONS['artist']:
+        artist = LASTFM_CORRECTIONS['artist'][artist]
+
+        matching = _match(artist, album, title)
+
+    return matching
+
+
+def match_scrobble(scrobble):
+    """
+    Given a Scrobble, match it against our Discogs collection.
+
+    (Shorthand function to avoid having to split parameters to match() )
+    """
+    return match(scrobble.artist, scrobble.album, scrobble.title)
 
 
 def link_scrobble(scrobble):
     """
     Given a scrobble, link it to an artist, track and record
     """
-    matches = match(scrobble.artist, scrobble.album, scrobble.title)
+    matches = match_scrobble(scrobble)
     artist, album, track = matches
 
     if track:

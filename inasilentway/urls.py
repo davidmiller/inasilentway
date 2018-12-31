@@ -35,6 +35,8 @@ urlpatterns = [
     path('style/<int:pk>/<slug>/', views.StyleView.as_view(), name='style'),
     path('search/', views.SearchView.as_view(), name='search'),
 
+    path('unplayed/', views.UnplayedView.as_view(), name='unplaed'),
+
     # Artist views
     path('artist/<int:pk>/<slug>/', views.ArtistView.as_view(), name='artist'),
 
