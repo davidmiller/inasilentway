@@ -59,4 +59,9 @@ urlpatterns = [
         'listening-history/',
         views.ListeningHistoryView.as_view(),
         name='listening-history'),
+    path(
+        'listening-history/<int:year>/',
+        views.ListeningHistoryYearView.as_view(),
+        name='listening-history-year'),
+
 ]

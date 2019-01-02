@@ -1,0 +1,18 @@
+{% extends 'inasilentway/listening_history.html' %}
+{% load humanize %}
+{% block this_month_charts %}
+    <div class="w-30 mr5">
+      <ol class="pl4">
+        {% for artist in view.get_top_lastfm_artists_this_year %}
+          <li>
+            <span class="{{ artist.all_time_ranking.klass }} f4">
+              {{ artist.all_time_ranking.icon | safe }}
+            </span>&nbsp;
+            {{ artist.artist }}
+            <span class="fr">{{ artist.total | intcomma }}</span>
+          </li>
+        {% endfor %}
+      </ol>
+    </div>
+{% endblock %}
+{% block top_artists %}{% endblock %}

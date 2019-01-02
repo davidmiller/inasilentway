@@ -67,6 +67,7 @@
       </div>
     </div>
 
+    {% block this_month_charts %}
     <div class="w-30">
       {% with view.get_scrobbles_per_day_this_month as total %}
         <div class="flex">
@@ -94,8 +95,10 @@
         </div>
       </div>
     </div>
+    {% endblock %}
   </div>
 
+{% block top_artists %}
   <h2 class="f6 ttu bb mt3 mb3">
     Top Artists
   </h2>
@@ -136,22 +139,8 @@
         {% endfor %}
       </ol>
     </div>
+{% endblock %}
 
   </div>
-
-  <h2 class="f6 ttu bb mt3 mb3">
-    Top Artists (linked)
-  </h2>
-  <ol class="pl4">
-    {% for artist in view.get_top_artists %}
-      <li>
-        <a href="{{ artist.get_absolute_url }}">
-          {{ artist.name }}
-        </a>
-        <span class="fr">{{ artist.total | intcomma }}</span>
-      </li>
-    {% endfor %}
-  </ol>
-
 
 {% endblock %}

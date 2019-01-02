@@ -65,6 +65,7 @@ LASTFM_CORRECTIONS = {
         'N.W.A'                         : 'N.W.A.',
         'Mark Lanegan'                  : 'Mark Lanegan Band',
         'Oscar Peterson Trio'           : 'The Oscar Peterson Trio',
+        'Miles Davis'                   : 'Miles Davis All Stars', # Walkin'
     }
 }
 
@@ -315,6 +316,9 @@ Graphs
 """
 
 def scrobbles_by_day_for_queryset(queryset):
+    if queryset.count() == 0:
+        return []
+
     queryset = queryset.order_by('timestamp')
     last  = queryset.last().ts_as_dt()
     counts = []
@@ -344,6 +348,9 @@ def scrobbles_by_day_for_queryset(queryset):
 
 
 def scrobbles_by_month_for_queryset(queryset):
+    if queryset.count() == 0:
+        return []
+
     queryset = queryset.order_by('timestamp')
     first  = queryset.first().ts_as_dt()
     counts = []

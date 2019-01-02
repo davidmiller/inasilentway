@@ -8,7 +8,7 @@ import time
 
 from django.db.models import Count, Q
 from django.shortcuts import redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.views.generic import ListView, DetailView, TemplateView
@@ -266,10 +266,6 @@ class ListeningHistoryView(TemplateView):
     template_name = 'inasilentway/listening_history.html'
 
     # Top artist lists
-    def get_top_artists(self):
-        return Artist.objects.all().annotate(
-            total=Count('scrobble')).order_by('-total')[:25]
-
     def _top_scrobbles_for_qs(self, qs):
         return qs.values(
             'artist').annotate(total=Count('artist')).order_by('-total')[:25]
@@ -379,4 +375,68 @@ class ListeningHistoryView(TemplateView):
         return lastfm.scrobbles_by_month_for_queryset(qs)
 
     def get_scrobble_graph_all_time(self):
-        return lastfm.total_scrobbles_by_year()
+        data = lastfm.total_scrobbles_by_year()
+        data = [
+            ({'y': y, 'link': reverse('listening-history-year', args=[y]) }, value, proportion)
+            for y, value, proportion in data
+        ]
+        return data
+
+
+class ListeningHistoryYearView(ListeningHistoryView):
+    template_name = 'inasilentway/listening_history_year.html'
+
+    def dispatch(self, *a, **k):
+        self.year = k.get('year', None)
+        self.start = datetime.datetime(self.year, 1, 1)
+        self.end   = datetime.datetime(self.year + 1, 1, 1)
+        self.lastfm_subheading = 'Last.fm &mdash; {}'.format(self.year)
+
+        return super().dispatch(*a, **k)
+
+    def get_scrobbles_per_day_this_year(self):
+        return self._scrobbles_per_day_between(self.start, self.end)
+
+    def get_scrobble_graph_this_year(self):
+        qs = Scrobble.objects.filter(
+            timestamp__gte=time.mktime(self.start.timetuple()),
+            timestamp__lt=time.mktime(self.end.timetuple())
+        )
+        return lastfm.scrobbles_by_month_for_queryset(qs)
+
+    def get_top_lastfm_artists_this_year(self):
+        scrobbles = self._top_scrobbles_for_qs(
+            Scrobble.objects.filter(
+                timestamp__gte=time.mktime(self.start.timetuple()),
+                timestamp__lt=time.mktime(self.end.timetuple())
+            )
+        )
+
+        prev_year_rankings = {}
+        prev_year_top = self._top_scrobbles_for_qs(
+            Scrobble.objects.filter(
+                timestamp__gte=time.mktime(
+                    datetime.datetime(self.year -1, 1, 1).timetuple()),
+                timestamp__lt=time.mktime(
+                    self.start.timetuple())
+            )
+        )
+        for i, s in enumerate(prev_year_top):
+            prev_year_rankings[s['artist']] = i+1
+
+        for i, scrobble in enumerate(scrobbles):
+            ranking = dict(icon='&nwArr;', klass='gold')
+
+            i += 1
+            if scrobble['artist'] in prev_year_rankings:
+                all_time = prev_year_rankings[scrobble['artist']]
+                if all_time == i:
+                    ranking = dict(icon='&mapstoleft;', klass='navy')
+                elif all_time > i:
+                    ranking = dict(icon='&uparrow;', klass='dark-green')
+                elif all_time < i:
+                    ranking = dict(icon='&downarrow;', klass='dark-red')
+
+            scrobble['all_time_ranking'] = ranking
+
+        return scrobbles

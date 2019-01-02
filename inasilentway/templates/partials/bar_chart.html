@@ -2,7 +2,13 @@
 {% for y, value, proportion in data  %}
   <div class="flex">
     <div class="w-20 {% if len > 20 %}mb0 mt0 pa0{% else %}mb1 mt1 pa1{% endif %}">
-      {{ y }}
+      {% if y.link %}
+        <a href="{{ y.link }}">
+          {{ y.y }}
+        </a>
+      {% else %}
+        {{ y }}
+      {% endif %}
     </div>
     <div class="w-80">
       <div class="flex">
