@@ -134,11 +134,21 @@ class UnplayedView(RecordListView):
 
 class SearchView(RecordListView):
 
+    def get_song_queryset(self, query):
+        operator, title = query.split(':')
+        return self.model.objects.filter(
+            track__title__icontains=title
+        ).order_by(self.get_sort()).distinct()
+
     def get_queryset(self):
         query = self.request.GET['query']
-        qs = self.model.objects.filter(
-            Q(title__icontains=query) | Q(artist__name__icontains=query)
-        ).order_by(self.get_sort()).distinct()
+        if query.startswith('song:'):
+            qs = self.get_song_queryset(query)
+        else:
+            qs = self.model.objects.filter(
+                Q(title__icontains=query) | Q(artist__name__icontains=query)
+            ).order_by(self.get_sort()).distinct()
+
         self.num_records = qs.count()
         return qs
 

@@ -48,12 +48,14 @@ LASTFM_CORRECTIONS = {
     # We keep a mapping of known corrections here so we can move between them
     #
     'album': {
-        # lastfm name                                     : disgogs_name
+        # lastfm name                                     : disgogs name
         'Desafinado: Bossa Nova & Jazz Samba'             : 'Desafinado Coleman Hawkins Plays Bossa Nova & Jazz Samba', # noqa
         'Oscar Peterson Plays the Duke Ellington Songbook': 'The Duke Ellington Songbook', # noqa
         'Standard Time Vol.2 - Intimacy Calling'          : 'Standard Time Vol. 2 (Intimacy Calling)', # noqa
         'White Light/White Heat'                          : 'White Light / White Heat', # noqa
         'Thelonious Monk Plays Duke Ellington'            : 'Plays Duke Ellington', # noaa
+        'Nights Of Ballads & Blues'                       : 'Nights Of Ballads And Blues', # noqa
+        'Birth of the Cool'                               : 'The Birth Of The Cool' # noqa
     },
 
     'artist': {
@@ -66,6 +68,7 @@ LASTFM_CORRECTIONS = {
         'Mark Lanegan'                  : 'Mark Lanegan Band',
         'Oscar Peterson Trio'           : 'The Oscar Peterson Trio',
         'Miles Davis'                   : 'Miles Davis All Stars', # Walkin'
+        'Miles Davis Quintet'           : 'The Miles Davis Quintet', # Cookin'
     }
 }
 
@@ -272,6 +275,8 @@ def scrobble_record(record, when):
     Given a record and a datetime of when it started playing, scrobble
     it on last.fm
     """
+    print('Scrobbling record started')
+    t1 = time.time()
     start_time = time.mktime(when.timetuple())
     tracks = []
     artist = record.artist.first().name
@@ -308,7 +313,11 @@ def scrobble_record(record, when):
 
     for track in tracks:
         print(track)
+
     api.scrobble_many(tracks)
+
+    apicall = time.time() - t1
+    print('API call took {}s'.format(apicall))
 
 
 """
