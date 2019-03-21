@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block content %}
+  <h2 class="f6 ttu bb mt3 mb3">
+    {% block content_title %}
+      Top Artists
+    {% endblock %}
+  </h2>
+  <div class="flex">
+    <div class="w-60 mr3 br">
+      <ol class=" pl0" start="{{ view.get_ol_start }}">
+        {% for scrobble in object_list %}
+          <li class="pa1">
+            <div class="flex">
+              <div class="w-70">
+                {{ scrobble.artist }}
+              </div>
+              <div class="w-30">
+                {{ scrobble.total | intcomma }}
+              </div>
+            </div>
+          </li>
+        {% endfor %}
+      </ol>
+      {% include 'partials/pagination.html' %}
+    </div>
+  </div>
+
+{% endblock %}

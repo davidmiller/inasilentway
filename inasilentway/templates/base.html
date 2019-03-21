@@ -52,6 +52,34 @@
         {% block content %}{% endblock %}
       </div>
     </section>
+
+    <div class="w-100 bg-light-red pa5 avenir">
+      <div class="flex">
+        <div class="w-40">
+          <h2 class="ttu bb f5">
+            Less Useful Links
+          </h2>
+          <ul class="list pl0">
+            <li class="pb2">
+              <a href="{% url 'unplayed' %}">Unplayed records</a>
+            </li>
+            <li class="pb2">
+              <a href="{% url 'unlinked-scrobbles' %}">Unlinked scrobbles</a>
+            </li>
+            <li class="pb2">
+              <a href="{% url 'listening-history' %}">Listening history</a>
+            </li>
+            <li class="pb2">
+              <a href="{% url 'oldest' %}">Least recently played</a>
+            </li>
+            <li class="pb2">
+              <a href="{% url 'top-artists' %}">Top artists</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
   </body>
 
   <script src="{% static 'js/inasilentway.js' %}"></script>

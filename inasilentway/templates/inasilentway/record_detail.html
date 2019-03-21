@@ -12,7 +12,9 @@
         {{ object.title }}
         <br />
         {% for artist in record.artist.all %}
-          <a class="link black underline" href="{{ artist.get_absolute_url }}">{{ artist.name }}</a>
+          <a class="link black underline" href="{{ artist.get_absolute_url }}">
+            {{ artist.name }}
+          </a>{% if not forloop.last %},{% endif %}
         {% endfor %}
       </h2>
     </div>
@@ -20,9 +22,9 @@
 {% endblock %}
 
 {% block content %}
+  <div class="flex">
+    <div class="w-50 pr5">
 
-  <div class="">
-    <div class="fl w-50 pr5">
       <h3 class="f6 ttu bb mt0 mb3">
         Details
       </h3>
@@ -89,7 +91,8 @@
       {% endif %}
 
     </div>
-    <div class="fl w-50 pr5">
+
+    <div class="w-50 pr5">
       <h3 class="f6 ttu bb mt0 mb3">
         Tracklist
       </h3>
@@ -114,9 +117,18 @@
       </ol>
       </div>
 
+    </div> <!-- Top RH Col -->
+
+    <div class="w-100 mt3 mb3">
+      <h3 class="f6 ttu bb">
+        Links
+      </h3>
+      <a href="https://discogs.com/album/release/{{ object.discogs_id }}" target="_blank">
+        Discogs release page
+      </a>
     </div>
 
-    <div class="fl w-100 mt3 mb3 ">
+    <div class="w-100 mt5 mb3 ">
       <h3 class="f6 ttu bb">
         Scrobbles ({{ object.scrobble_set.count | intcomma }})
       </h3>
@@ -138,6 +150,9 @@
                 {{ form.time }}
               </div>
               <div class="pa2 ma2">
+                {{ form.tracks }}
+              </div>
+              <div class="pa2 ma2">
                 <button type="submit">Scrobble</button>
               </div>
             </form>
@@ -146,36 +161,12 @@
       </div>
     </div>
 
-    <div class="fl w-100 mt3 mb3">
-      <h3 class="f6 ttu bb">
-        Links
-      </h3>
-      <a href="https://discogs.com/album/release/{{ object.discogs_id }}" target="_blank">
-        Discogs release page
-      </a>
-    </div>
 
-    <!-- <div class="fl w-100 mt3 mb3"> -->
-      <!--   <h3 class="f6 ttu bb"> -->
-        <!--     Developer tools -->
-        <!--   </h3> -->
+  </div>
 
-      <!--   <form method="post" action="{% url 'delete-record' object.id %}">{% csrf_token %} -->
-        <!--     <p>Are you sure you want to delete "{{ object }}"?</p> -->
-        <!--     <input type="submit" value="Confirm"> -->
-        <!--   </form> -->
 
-      <!-- </div> -->
 
-    <!-- <div> -->
-      <!--   <div class="fl w-100"> -->
-        <!--     <h3 class="f6 ttu bb"> -->
-          <!--       Unmanaged API fields -->
-          <!--     </h3> -->
 
-        <!--     <ul class="list"> -->
-          <!--       <li>Images: {{ record.images }}</li> -->
-          <!--     </ul> -->
-        <!--   </div> -->
-      <!-- </div> -->
-    {% endblock %}
+</div> <!-- Flex -->
+
+{% endblock %}

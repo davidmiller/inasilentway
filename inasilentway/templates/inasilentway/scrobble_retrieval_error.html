@@ -1,0 +1,21 @@
+p{% extends 'base.html' %}
+{% load humanize %}
+{% load inasilentway %}
+
+{% block page_title %}
+  {% include 'partials/lastfm_header.html' %}
+{% endblock %}
+
+{% block content %}
+  <div>
+    <p>
+      Last.FM returned an error when attempting to retrieve scrobbles.
+    </p>
+    <p>
+      The data should be stored and retrievable later.
+    </p>
+    <p>
+      They're a bit flakey like that at times.
+    </p>
+  </div>
+{% endblock %}

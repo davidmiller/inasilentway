@@ -9,8 +9,8 @@
 
 {% endblock %}
 {% block content %}
-  <section class="">
-    <div class="fl w-50 pr5">
+  <div class="flex">
+    <div class="w-50 pr5">
       <h3 class="f6 ttu bb mt0 mb3">
         Details
       </h3>
@@ -19,7 +19,7 @@
       </p>
 
     </div>
-    <div class="fl w-50 pr5">
+    <div class="w-50 pr5">
       <h3 class="f6 ttu bb mt0 mb3">
         Records
       </h3>
@@ -33,24 +33,25 @@
         {% endfor %}
       </ol>
     </div>
-  </section>
+  </div>
 
-  <div class="fl w-100 mt3 mb3 ">
-    <h3 class="f6 ttu bb">
-      Scrobbles ({{ object.scrobble_set.count | intcomma }})
-    </h3>
-    <div class="flex">
-      <div class="w-50 pr3 br">
-        {% bar_chart view.scrobbles_by_year %}
+  <div class="flex">
+    <div class="w-100 mt3 mb3 ">
+      <h3 class="f6 ttu bb">
+        Scrobbles ({{ object.scrobble_set.count | intcomma }})
+      </h3>
+      <div class="flex">
+        <div class="w-50 pr3 br">
+          {% bar_chart view.scrobbles_by_year %}
+        </div>
+
+        <div class="w-50"></div>
       </div>
-
-      <div class="w-50"></div>
     </div>
   </div>
 
-
-  <div>
-    <div class="fl w-100">
+  <div class="flex">
+    <div class="w-100">
       <h3 class="f6 ttu bb">
         Unmanaged API fields
       </h3>
@@ -58,12 +59,13 @@
       <ul class="list">
         <li>Images: {{ object.images }}</li>
         <li>Url: {{ object..url}}</li>
-      <ul class="list">
-        <li>Urls: {{ object.urls }}</li>
-      </ul>
+        <ul class="list">
+          <li>Urls: {{ object.urls }}</li>
+        </ul>
 
       </ul>
     </div>
+
   </div>
 
 {% endblock %}

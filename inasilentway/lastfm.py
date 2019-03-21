@@ -36,7 +36,16 @@ LASTFM_PRE_SUBMIT_SUBS = {
 #
 LASTFM_PRE_SUBMIT_TRACKS = {
     # Title:Artist.first().name : {method: {**kwargs}}
-    'Wave:Antonio Carlos Jobim': {'exclude': {'position__startswith': 'CD'}},
+    'Wave:Antonio Carlos Jobim': [{'exclude': {'position__startswith': 'CD'}}],
+    'It Takes A Nation Of Millions To Hold Us Back:Public Enemy': [{'exclude': {'title__icontains': 'side'}}],
+    'Live At Carnegie Hall:Ryan Adams': [{'exclude': {'title': 'Untitled'}}, {'exclude': {'title__contains': 'November'}}],
+    'Mess:Liars': [{'exclude': {'position__startswith': 'CD'}}],
+    'O Amor, O Sorriso E A Flor:João Gilberto': [{'exclude': {'position__startswith': 'CD'}}],
+    'Ballads:The John Coltrane Quartet': [{'exclude': {'position': ''}}],
+    'Are You Experienced / Axis: Bold As Love:The Jimi Hendrix Experience': [{'exclude': {'position': ''}}],
+    'The Modern Jazz Quartet:The Modern Jazz Quartet': [{'exclude': {'position': ''}}],
+    'Chapter Four: Alive In New York:Gato Barbieri': [{'exclude': {'position': ''}}],
+
 }
 
 LASTFM_CORRECTIONS = {
@@ -55,20 +64,37 @@ LASTFM_CORRECTIONS = {
         'White Light/White Heat'                          : 'White Light / White Heat', # noqa
         'Thelonious Monk Plays Duke Ellington'            : 'Plays Duke Ellington', # noaa
         'Nights Of Ballads & Blues'                       : 'Nights Of Ballads And Blues', # noqa
-        'Birth of the Cool'                               : 'The Birth Of The Cool' # noqa
+        'Birth of the Cool'                               : 'The Birth Of The Cool', # noqa
+        'The Ace Of Rhythm'                               : 'The Ace Of Rhythm ', # Discogs leaves in trailing spaces on album names :/
+        'Soused'                                          : 'Soused ',
+        'Muito À Vontade'                                 : 'Muito à Vontade',
+        'A Night At Birdland, Volume 1'                   : 'A Night At Birdland Volume 1',
+        'Out to Lunch'                                    : 'Out To Lunch! ',
+        'A New Morning, Changing Weather'                 : 'A New Morning Changing Weather',
+        '"Classical" Symphony / Symphony No 1'            :'"Classical" Symphony / Symphony No 1 ',
+
+
     },
 
     'artist': {
-        # lastfm name                   : discogs name
-        'Duke Ellington & His Orchestra': 'Duke Ellington And His Orchestra',
-        'Miles Davis Quintet'           : 'The Miles Davis Quintet',
-        'Clifford Brown & Max Roach'    : 'Clifford Brown And Max Roach',
-        'Antônio Carlos Jobim'          : 'Antonio Carlos Jobim',
-        'N.W.A'                         : 'N.W.A.',
-        'Mark Lanegan'                  : 'Mark Lanegan Band',
-        'Oscar Peterson Trio'           : 'The Oscar Peterson Trio',
-        'Miles Davis'                   : 'Miles Davis All Stars', # Walkin'
-        'Miles Davis Quintet'           : 'The Miles Davis Quintet', # Cookin'
+        # lastfm name                         : discogs name
+        'Duke Ellington & His Orchestra'      : 'Duke Ellington And His Orchestra',
+        'Miles Davis Quintet'                 : 'The Miles Davis Quintet',
+        'Clifford Brown & Max Roach'          : 'Clifford Brown And Max Roach',
+        'Antônio Carlos Jobim'                : 'Antonio Carlos Jobim',
+        'N.W.A'                               : 'N.W.A.',
+        'Mark Lanegan'                        : 'Mark Lanegan Band',
+        'Oscar Peterson Trio'                 : 'The Oscar Peterson Trio',
+        'Miles Davis'                         : 'Miles Davis All Stars', # Walkin'
+        'Miles Davis Quintet'                 : 'The Miles Davis Quintet', # Cookin'
+        'Bill Evans Trio'                     : 'The Bill Evans Trio',
+        'Bill Evans'                          : 'The Bill Evans Trio',
+        'Modern Jazz Quartet'                 : 'The Modern Jazz Quartet',
+        'Duke Ellington'                      : 'Duke Ellington And His Orchestra',
+        'Captain Beefheart & His Magic Band'  : 'Captain Beefheart And His Magic Band',
+        'The (International) Noise Conspiracy': 'The International Noise Conspiracy',
+        'Sonny Rollins'                       : 'Sonny Rollins Quartet',
+
     }
 }
 
@@ -85,13 +111,15 @@ SPOTIFY_EQUIVALENTS = {
     }
 }
 
-
-api = pylast.LastFMNetwork(
-    api_key=settings.LASTFM_API_KEY,
-    api_secret=settings.LASTFM_SECRET,
-    username=settings.LASTFM_USER,
-    password_hash=settings.LASTFM_PASS
-)
+try:
+    api = pylast.LastFMNetwork(
+        api_key=settings.LASTFM_API_KEY,
+        api_secret=settings.LASTFM_SECRET,
+        username=settings.LASTFM_USER,
+        password_hash=settings.LASTFM_PASS
+    )
+except pylast.NetworkError:
+    print('No network available')
 
 def match_artist(artist_name):
     """
@@ -113,6 +141,15 @@ def match_artist(artist_name):
     if len(artist_matches) > 1:
         import pdb; pdb.set_trace() # noqa
         print(artist_matches)
+
+def _match_track(album, title):
+    """
+    Given a record and a track name, discover if there
+    is a matching track
+    """
+    for track in album.track_set.all():
+        if track.title.lower().strip() == title.lower().strip():
+            return track
 
 
 def _match(artist, album, title):
@@ -141,11 +178,14 @@ def _match(artist, album, title):
 
     if len(album_matches) > 1:
         # E.g. Billie holiday with many "all or nothing at all" albums
-        return matching_artist, match_album, match_track
-
-    for track in match_album.track_set.all():
-        if track.title.lower().strip() == title.lower().strip():
-            match_track = track
+        for album in album_matches:
+            track = _match_track(album, title)
+            if track:
+                match_album = album
+                match_track = track
+                break
+    else:
+        match_track = _match_track(match_album, title)
 
     return matching_artist, match_album, match_track
 
@@ -260,14 +300,76 @@ def load_last_24_hours_of_scrobbles():
     """
     (Re-)load the last 24 hours of scrobble history.
     """
+    # This is actually the most recent 300 - useful for
+    # when the get scrobbles API is erroring / timing out
+
     now = timezone.make_aware(datetime.datetime.now())
     yesterday = now - datetime.timedelta(days=1)
-    timestamp = time.mktime(yesterday.timetuple())
+    timestamp = time.mktime(now.timetuple())
     user = api.get_user(settings.LASTFM_USER)
     scrobbles = user.get_recent_tracks(
-        limit=1000, time_from=timestamp
+        limit=300, time_to=timestamp
     )
     save_scrobbles(scrobbles)
+
+    # This is 'get the most recent 1K scrobbles in the last 3 days
+
+    # now = timezone.make_aware(datetime.datetime.now())
+    # yesterday = now - datetime.timedelta(days=1)
+    # timestamp = time.mktime(yesterday.timetuple())
+    # user = api.get_user(settings.LASTFM_USER)
+    # scrobbles = user.get_recent_tracks(
+    #     limit=1000, time_from=timestamp
+    # )
+    # save_scrobbles(scrobbles)
+
+def prepare_tracks(tracks, artist, title, when):
+    """
+    Given an iterable of tracks to submit, the name of the artist,
+    the name of the album and a start datetime
+    prepare them for scrobbling.
+    """
+    prepared_tracks = []
+
+    start_time = time.mktime(when.timetuple())
+
+    for track in tracks:
+        track_data = {
+            'artist'   : artist,
+            'title'    : track.title,
+            'album'    : title,
+        }
+
+        for datatype in track_data:
+            val = track_data[datatype]
+            if val in LASTFM_PRE_SUBMIT_SUBS[datatype]:
+                track_data[datatype] = LASTFM_PRE_SUBMIT_SUBS[datatype][val]
+
+        track_data['timestamp'] = start_time
+        prepared_tracks.append(track_data)
+
+        if track.duration:
+            mins, secs = track.duration.split(':')
+            seconds = int(secs) + (int(mins) * 60)
+            start_time += seconds
+        else:
+            start_time += (3 * 60) + 41
+
+    for track in prepared_tracks:
+        print(track)
+
+    return prepared_tracks
+
+
+def scrobble_tracks(tracks, date):
+    prepared_tracks = prepare_tracks(
+        tracks,
+        tracks[0].record.artist.first().name,
+        tracks[0].record.title,
+        date
+    )
+    api.scrobble_many(prepared_tracks)
+    return
 
 
 def scrobble_record(record, when):
@@ -277,42 +379,20 @@ def scrobble_record(record, when):
     """
     print('Scrobbling record started')
     t1 = time.time()
-    start_time = time.mktime(when.timetuple())
-    tracks = []
+
     artist = record.artist.first().name
     track_set = record.track_set.all()
 
+    # auto filtering of tracks e.g. bonus CDs
     combined = ':'.join([record.title, artist])
-
     if combined in LASTFM_PRE_SUBMIT_TRACKS:
-        for method, args in LASTFM_PRE_SUBMIT_TRACKS[combined].items():
-            meth = getattr(track_set, method)
-            track_set = meth(**args)
+        for criteria in LASTFM_PRE_SUBMIT_TRACKS[combined]:
+            for method, args in  criteria.items():
+                meth = getattr(track_set, method)
+                print('{} {}'.format(str(meth), args))
+                track_set = meth(**args)
 
-    for track in track_set:
-        track_data = {
-            'artist'   : artist,
-            'title'    : track.title,
-            'album'    : record.title,
-        }
-
-        for datatype in track_data:
-            val = track_data[datatype]
-            if val in LASTFM_PRE_SUBMIT_SUBS[datatype]:
-                track_data[datatype] = LASTFM_PRE_SUBMIT_SUBS[datatype][val]
-
-        track_data['timestamp'] = start_time
-        tracks.append(track_data)
-
-        if track.duration:
-            mins, secs = track.duration.split(':')
-            seconds = int(secs) + (int(mins) * 60)
-            start_time += seconds
-        else:
-            start_time += (3 * 60) + 41
-
-    for track in tracks:
-        print(track)
+    tracks = prepare_tracks(track_set, artist, record.title, when)
 
     api.scrobble_many(tracks)
 
@@ -320,11 +400,34 @@ def scrobble_record(record, when):
     print('API call took {}s'.format(apicall))
 
 
+def filter_tracks(record, tracks):
+    """
+    Given a record and a string to filter tracks by, return only
+    the tracks that match the filter.
+    """
+    filtered_tracks = []
+    filters = tracks.split(',')
+    for condition in filters:
+        # A*
+        if condition.endswith('*'):
+            if len(condition) == 2:
+                filtered_tracks.append(
+                    record.track_set.all().filter(
+                        position__istartswith=condition[0]
+                    )
+                )
+    results = []
+    for queryset in filtered_tracks:
+        results += list(queryset)
+    return results
+
+
+
 """
 Graphs
 """
 
-def scrobbles_by_day_for_queryset(queryset):
+def scrobbles_by_day_for_queryset(queryset, min_values=0):
     if queryset.count() == 0:
         return []
 
@@ -347,12 +450,19 @@ def scrobbles_by_day_for_queryset(queryset):
             ).count()]
         )
 
-    counts.reverse()
     max_count = max([c[1] for c in counts])
 
     for group in counts:
         group.append(utils.percent_of(group[1], max_count))
 
+    if len(counts) < min_values:
+        days = [i+1 for i in range(min_values)]
+
+        for d in days:
+            if len(counts) < d:
+                counts.append([d, 0, 0])
+
+    counts.reverse()
     return counts
 
 

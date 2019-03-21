@@ -6,7 +6,7 @@ import datetime
 import random
 import time
 
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Max
 from django.shortcuts import redirect
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
@@ -45,23 +45,31 @@ class RecordListView(ListView):
             return self.redirect_to_random_record()
         return super().dispatch(*a, **k)
 
-    def get_sort(self):
+    def sort(self, queryset):
         sorts = {
             'artist': 'artist__name',
             'title ': 'title',
-            'year'  : 'year'
+            'year'  : 'year',
+            'oldest': 'oldest'
         }
 
         if self.request.GET.get('sort', None) in sorts:
             sort = sorts[self.request.GET['sort']]
         else:
             sort = 'title'
-        return sort
+        if sort == 'oldest':
+            queryset = queryset.filter(scrobble__isnull=False)
+            queryset = queryset.annotate(last_scrobble=Max('scrobble__timestamp'))
+            queryset = queryset.order_by('last_scrobble').distinct()
+        else:
+            queryset = queryset.order_by(sort).distinct()
+        return queryset
 
     def get_queryset(self):
         qs = self.model.objects.filter(
             title__isnull=False
-        ).order_by(self.get_sort()).distinct()
+        )
+        qs = self.sort(qs)
         self.num_records = qs.count()
         return qs
 
@@ -80,7 +88,8 @@ class GenreView(RecordListView):
     def get_queryset(self):
         qs = Record.objects.filter(
             genres=self.genre
-        ).distinct().order_by(self.get_sort())
+        )
+        qs = self.sort(qs)
         self.num_records = qs.count()
         return qs
 
@@ -99,7 +108,8 @@ class StyleView(RecordListView):
     def get_queryset(self):
         qs = Record.objects.filter(
             styles=self.style
-        ).distinct().order_by(self.get_sort())
+        )
+        qs = self.sort(qs)
         self.num_records = qs.count()
         return qs
 
@@ -114,7 +124,8 @@ class LabelView(RecordListView):
     def get_queryset(self):
         qs = Record.objects.filter(
             label=self.label
-        ).distinct().order_by(self.get_sort())
+        )
+        qs = self.sort(qs)
         self.num_records = qs.count()
         return qs
 
@@ -124,10 +135,29 @@ class UnplayedView(RecordListView):
     Displays our standard record list view limited to records
     that do not yet have a linked scrobble.
     """
+    page_title    = 'Unplayed Records'
+    page_subtitle = 'Unplayed Records'
+
     def get_queryset(self):
         qs = self.model.objects.filter(
             scrobble__isnull=True
         )
+        qs = qs.exclude(artist__name='Various')
+        qs = self.sort(qs)
+        self.num_records = qs.count()
+        return qs
+
+
+class OldestView(RecordListView):
+
+    page_subtitle = 'Least recently played records'
+
+    def get_queryset(self):
+        qs = self.model.objects.filter(
+            scrobble__isnull=False
+        )
+        qs = qs.annotate(last_scrobble=Max('scrobble__timestamp'))
+        qs = qs.order_by('last_scrobble')
         self.num_records = qs.count()
         return qs
 
@@ -136,9 +166,9 @@ class SearchView(RecordListView):
 
     def get_song_queryset(self, query):
         operator, title = query.split(':')
-        return self.model.objects.filter(
+        return self.sort(self.model.objects.filter(
             track__title__icontains=title
-        ).order_by(self.get_sort()).distinct()
+        ))
 
     def get_queryset(self):
         query = self.request.GET['query']
@@ -147,7 +177,8 @@ class SearchView(RecordListView):
         else:
             qs = self.model.objects.filter(
                 Q(title__icontains=query) | Q(artist__name__icontains=query)
-            ).order_by(self.get_sort()).distinct()
+            )
+            qs = self.sort(qs)
 
         self.num_records = qs.count()
         return qs
@@ -172,7 +203,8 @@ class RecordView(DetailView):
         now   = timezone.make_aware(datetime.datetime.now()).strftime('%H:%M')
         form  = forms.ScrobbleForm(
             initial=dict(
-                date=today, time=now, record_id=self.get_object().id
+                date=today, time=now, record_id=self.get_object().id,
+                tracks='*'
             )
         )
         return form
@@ -190,10 +222,23 @@ class SubmitScrobbleView(FormView):
 
         record = Record.objects.get(pk=data['record_id'])
 
-        lastfm.scrobble_record(record, date)
+        if data['tracks'] == '*':
+            print('Scrobbling all tracks')
+            lastfm.scrobble_record(record, date)
+        else:
+            print('Scrobbling track subset from record')
+            tracks = lastfm.filter_tracks(record, data['tracks'])
+            lastfm.scrobble_tracks(tracks, date)
 
-        lastfm.load_last_24_hours_of_scrobbles()
+        try:
+            lastfm.load_last_24_hours_of_scrobbles()
+        except lastfm.pylast.WSError:
+            return redirect(reverse('scrobble-retrieval-error'))
         return super().form_valid(form)
+
+
+class ScrobbleRetrievalErroView(TemplateView):
+    template_name = 'inasilentway/scrobble_retrieval_error.html'
 
 
 class DeleteRecordView(DeleteView):
@@ -214,6 +259,7 @@ class ScrobbleListView(ListView):
     model = Scrobble
     paginate_by = 50
     page_class = 'scrobbles'
+    page_title = 'Scrobbles'
 
     def get_queryset(self):
         return Scrobble.objects.all().order_by('-timestamp')
@@ -274,6 +320,7 @@ class ListeningHistoryView(TemplateView):
     various numbers, lists and charts.
     """
     template_name = 'inasilentway/listening_history.html'
+    page_title = 'Listening history'
 
     # Top artist lists
     def _top_scrobbles_for_qs(self, qs):
@@ -373,7 +420,7 @@ class ListeningHistoryView(TemplateView):
             timestamp__gte=time.mktime(start.timetuple()),
             timestamp__lt=time.mktime(now.timetuple())
         )
-        return lastfm.scrobbles_by_day_for_queryset(queryset)
+        return lastfm.scrobbles_by_day_for_queryset(queryset, min_values=12)
 
     def get_scrobble_graph_this_year(self):
         now = datetime.datetime.now()
@@ -382,7 +429,28 @@ class ListeningHistoryView(TemplateView):
             timestamp__gte=time.mktime(start.timetuple()),
             timestamp__lt=time.mktime(now.timetuple())
         )
-        return lastfm.scrobbles_by_month_for_queryset(qs)
+        data = lastfm.scrobbles_by_month_for_queryset(qs)
+        months = {
+            1: 'Jan',
+            2: 'Feb',
+            3: 'Mar',
+            4: 'Apr',
+            5: 'May',
+            6: 'Jun',
+            7: 'Jul',
+            8: 'Aug',
+            9: 'Sep',
+            10: 'Oct',
+            11: 'Nov',
+            12: 'Dec'
+        }
+        year = str(start.year)
+        data = [
+            ({'y': months[y], 'link': reverse('listening-history-month', args=[year, months[y]]) },
+             value, proportion)
+            for y, value, proportion in data
+        ]
+        return data
 
     def get_scrobble_graph_all_time(self):
         data = lastfm.total_scrobbles_by_year()
@@ -397,7 +465,7 @@ class ListeningHistoryYearView(ListeningHistoryView):
     template_name = 'inasilentway/listening_history_year.html'
 
     def dispatch(self, *a, **k):
-        self.year = k.get('year', None)
+        self.year  = k.get('year', None)
         self.start = datetime.datetime(self.year, 1, 1)
         self.end   = datetime.datetime(self.year + 1, 1, 1)
         self.lastfm_subheading = 'Last.fm &mdash; {}'.format(self.year)
@@ -450,3 +518,68 @@ class ListeningHistoryYearView(ListeningHistoryView):
             scrobble['all_time_ranking'] = ranking
 
         return scrobbles
+
+
+class ListeningHistoryMonthView(ListeningHistoryView):
+    template_name = 'inasilentway/listening_history_month.html'
+
+    def dispatch(self, *a, **k):
+        months = {
+            'Jan': 1,
+            'Feb': 2,
+            'Mar': 3,
+            'Apr': 4,
+            'May': 5,
+            'Jun': 6,
+            'Jul': 7,
+            'Aug': 8,
+            'Sep': 9,
+            'Oct': 10,
+            'Nov': 11,
+            'Dec': 12
+        }
+
+        self.year  = k.get('year', None)
+        self.month = k.get('month', None)
+        self.start = datetime.datetime(self.year, months[self.month], 1)
+        self.end   = datetime.datetime(self.year, months[self.month] + 1, 1)
+        self.lastfm_subheading = 'Last.fm &mdash; {} {}'.format(self.month, self.year)
+
+        return super().dispatch(*a, **k)
+
+    def get_scrobbles_per_day_this_month(self):
+#        today = datetime.date.today()
+#        year  = today.year
+#        month = today.month
+#        start = datetime.datetime(year, month, 1)
+        # try:
+        #     end   = datetime.datetime(year, month, today.day +1)
+        # except ValueError:
+        #     end = datetime.datetime(year, month, today.day)
+        #     end = end + datetime.timedelta(days=1)
+
+        return self._scrobbles_per_day_between(self.start, self.end)
+
+
+    def get_scrobble_graph_this_month(self):
+#        now = datetime.datetime.now()
+#        start = datetime.datetime(now.year, now.month, 1)
+        queryset = Scrobble.objects.filter(
+            timestamp__gte=time.mktime(self.start.timetuple()),
+            timestamp__lt=time.mktime(self.end.timetuple())
+        )
+        return lastfm.scrobbles_by_day_for_queryset(queryset, min_values=12)
+
+
+class TopArtistsView(ListView):
+
+    template_name = 'inasilentway/top_artists.html'
+    model = Scrobble
+    paginate_by = 50
+
+    def get_ol_start(self):
+        return ((self.get_context_data()['page_obj'].number - 1 )* self.paginate_by ) + 1
+
+    def get_queryset(self):
+        return Scrobble.objects.all().values('artist').annotate(
+            total=Count('artist')).order_by('-total')

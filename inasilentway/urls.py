@@ -35,7 +35,8 @@ urlpatterns = [
     path('style/<int:pk>/<slug>/', views.StyleView.as_view(), name='style'),
     path('search/', views.SearchView.as_view(), name='search'),
 
-    path('unplayed/', views.UnplayedView.as_view(), name='unplaed'),
+    path('unplayed/', views.UnplayedView.as_view(), name='unplayed'),
+    path('oldest/', views.OldestView.as_view(), name='oldest'),
 
     # Artist views
     path('artist/<int:pk>/<slug>/', views.ArtistView.as_view(), name='artist'),
@@ -56,6 +57,11 @@ urlpatterns = [
         views.SubmitScrobbleView.as_view(),
         name='submit-scrobble'),
     path(
+        'scrobble-retrieval-error',
+        views.ScrobbleRetrievalErroView.as_view(),
+        name='scrobble-retrieval-error'
+    ),
+    path(
         'listening-history/',
         views.ListeningHistoryView.as_view(),
         name='listening-history'),
@@ -63,5 +69,14 @@ urlpatterns = [
         'listening-history/<int:year>/',
         views.ListeningHistoryYearView.as_view(),
         name='listening-history-year'),
+    path(
+        'listening-history/<int:year>/<str:month>',
+        views.ListeningHistoryMonthView.as_view(),
+        name='listening-history-month'),
+    path(
+        'top-artists',
+        views.TopArtistsView.as_view(),
+        name='top-artists'
+    ),
 
 ]

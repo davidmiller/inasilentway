@@ -1,0 +1,62 @@
+{% extends 'inasilentway/listening_history.html' %}
+{% load humanize %}
+{% load inasilentway %}
+{% block content %}
+  <div class="flex ">
+    <div class="w-50">
+      {% with view.get_scrobbles_per_day_this_year as total %}
+        <div class="flex">
+          <div class="w-50">
+            <h2 class="f6 ttu bb">
+              This Year
+            </h2>
+            <p class="b f4">
+              {{ total.count | intcomma }}
+            </p>
+          </div>
+          <div class="w-50">
+            <h2 class="f6 ttu bb">
+              Per Day
+            </h2>
+            <p class="b f4">
+              {{ total.per_day }}
+            </p>
+          </div>
+        </div>
+      {% endwith %}
+      <div class="flex">
+        <div class="w-100">
+          {% bar_chart view.get_scrobble_graph_this_year %}
+        </div>
+      </div>
+    </div> <!-- column 1 -->
+    <div class="w-50">
+      {% with view.get_scrobbles_per_day_this_month as total %}
+      <div class="flex">
+        <div class="w-50">
+          <h2 class="f6 ttu bb">
+            This Month
+          </h2>
+          <p class="b f4">
+            {{ total.count | intcomma }}
+          </p>
+        </div>
+        <div class="w-50">
+          <h2 class="f6 ttu bb">
+            Per Day
+          </h2>
+          <p class="b f4">
+            {{ total.per_day }}
+          </p>
+        </div>
+      </div>
+    {% endwith %}
+    <div class="flex">
+      <div class="w-100">
+        {% bar_chart view.get_scrobble_graph_this_month %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

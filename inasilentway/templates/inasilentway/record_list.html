@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load humanize %}
 {% block page_title %}
   {% if view.page_subtitle %}
     <h2 class="f3 mb3 mt0 pa5">
@@ -11,7 +12,7 @@
   <h2 class="f6 ttu bb mt3 mb3">
     <div class="flex">
       <div class="fl w-40">
-        Records ({{ view.num_records }})
+        Records ({{ view.num_records | intcomma }})
       </div>
       <div class="fl w-20 tc">
         <a href="{{ view.request.get_full_path }}{% if '?' in view.request.get_full_path %}&{% else %}?{% endif %}redirect=random">Random</a>
@@ -21,6 +22,7 @@
           <a href="{{ view.request.META.PATH_INFO }}?sort=artist">Artist</a>
           <a href="{{ view.request.META.PATH_INFO }}?sort=title">Title</a>
           <a href="{{ view.request.META.PATH_INFO }}?sort=year">Year</a>
+          <a href="{{ view.request.META.PATH_INFO }}?sort=oldest">Oldest</a>
         </span>
       </div>
     </div>
