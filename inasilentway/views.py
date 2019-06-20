@@ -11,7 +11,7 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
-from django.views.generic import ListView, DetailView, TemplateView
+from django.views.generic import ListView, DetailView, TemplateView, View
 from django.views.generic.edit import DeleteView, FormView
 
 from inasilentway import forms, lastfm
@@ -82,13 +82,23 @@ class GenreView(RecordListView):
 
     def dispatch(self, *a, **k):
         self.genre = Genre.objects.get(pk=self.kwargs['pk'])
-        self.page_subtitle = 'Genre: {}'.format(self.genre.name)
+        self.exclude = self.request.GET.get('exclude', None) == 'True'
+
+        if self.exclude:
+            self.page_subtitle = 'Genre: Not {}'.format(self.genre.name)
+        else:
+            self.page_subtitle = 'Genre: {}'.format(self.genre.name)
         return super().dispatch(*a, **k)
 
     def get_queryset(self):
-        qs = Record.objects.filter(
-            genres=self.genre
-        )
+        if self.exclude:
+            qs = Record.objects.exclude(
+                genres=self.genre
+            )
+        else:
+            qs = Record.objects.filter(
+                genres=self.genre
+            )
         qs = self.sort(qs)
         self.num_records = qs.count()
         return qs
@@ -237,6 +247,15 @@ class SubmitScrobbleView(FormView):
         return super().form_valid(form)
 
 
+class RetrieveScrobblesView(View):
+    def get(self, *a, **k):
+        try:
+            lastfm.load_last_24_hours_of_scrobbles()
+            return redirect(reverse('scrobble-list'))
+        except lastfm.pylast.WSError:
+            return redirect(reverse('scrobble-retrieval-error'))
+
+
 class ScrobbleRetrievalErroView(TemplateView):
     template_name = 'inasilentway/scrobble_retrieval_error.html'
 
@@ -323,9 +342,9 @@ class ListeningHistoryView(TemplateView):
     page_title = 'Listening history'
 
     # Top artist lists
-    def _top_scrobbles_for_qs(self, qs):
+    def _top_scrobbles_for_qs(self, qs, limit=25):
         return qs.values(
-            'artist').annotate(total=Count('artist')).order_by('-total')[:25]
+            'artist').annotate(total=Count('artist')).order_by('-total')[:limit]
 
     @cached_property
     def get_top_lastfm_artists_all_time(self):
@@ -487,7 +506,8 @@ class ListeningHistoryYearView(ListeningHistoryView):
             Scrobble.objects.filter(
                 timestamp__gte=time.mktime(self.start.timetuple()),
                 timestamp__lt=time.mktime(self.end.timetuple())
-            )
+            ),
+            limit=50
         )
 
         prev_year_rankings = {}

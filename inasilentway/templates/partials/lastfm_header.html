@@ -6,16 +6,18 @@
   </div>
   <div class="w-20">
     <div class="flex ttu pt5 avenir pl0 ml0">
-      <div class="mr2 w-40">
+      <div class="mr2 w-50">
         <a href="{% url 'listening-history' %}" class="link navy hover-bg-orange hover-white pt2 pb2">
           History
         </a>
       </div>
-      <div class="w-60">
-        <a href="{% url 'recently-scrobbled-records' %}" class="link navy hover-bg-orange hover-white pt2 pb2">
-          Recent Records
+      {% if user.is_authenticated %}
+      <div class="w-50">
+        <a href="{% url 'load-scrobbles' %}" class="link navy hover-bg-orange hover-white pt2 pb2">
+          Fetch
         </a>
       </div>
+      {% endif %}
     </div>
 
   </div>

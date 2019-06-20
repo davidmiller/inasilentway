@@ -139,6 +139,7 @@
 
         </div>
         <div class="w-50">
+          {% if user.is_authenticated %}
           {% with view.get_scrobble_form as form %}
             <form method="post" action="{% url 'submit-scrobble' %}">
               {% csrf_token %}
@@ -157,6 +158,11 @@
               </div>
             </form>
           {% endwith %}
+          {% else %}
+            <p class="ml2">
+              Scrobbling is disabled for unauthenticared users.
+            </p>
+          {% endif %}
         </div>
       </div>
     </div>

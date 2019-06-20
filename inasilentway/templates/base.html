@@ -75,6 +75,16 @@
             <li class="pb2">
               <a href="{% url 'top-artists' %}">Top artists</a>
             </li>
+            {% if user.is_authenticated %}
+              <li class="pb2">
+                <a href="{% url 'load-scrobbles' %}">Load recent scrobbles</a>
+              </li>
+            <li class="pb2">
+              <a href="{% url 'logout' %}">Log out</a>
+            {% else %}
+              <a href="{% url 'login' %}">Log in</a>
+            </li>
+          {% endif %}
           </ul>
         </div>
       </div>

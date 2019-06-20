@@ -8,6 +8,7 @@ import time
 from django.conf import settings
 from django.utils import timezone
 import pylast
+from pytz.tzinfo import NonExistentTimeError
 
 from inasilentway.models import Scrobble
 from inasilentway import utils
@@ -45,8 +46,10 @@ LASTFM_PRE_SUBMIT_TRACKS = {
     'Are You Experienced / Axis: Bold As Love:The Jimi Hendrix Experience': [{'exclude': {'position': ''}}],
     'The Modern Jazz Quartet:The Modern Jazz Quartet': [{'exclude': {'position': ''}}],
     'Chapter Four: Alive In New York:Gato Barbieri': [{'exclude': {'position': ''}}],
-
+    'Bird / The Savoy Recordings (Master Takes):Charlie Parker': [{'exclude': {'position': ''}}],
+    'Memorial:Clifford Brown': [{'exclude': {'position': ''}}],
 }
+
 
 LASTFM_CORRECTIONS = {
     #
@@ -70,10 +73,11 @@ LASTFM_CORRECTIONS = {
         'Muito À Vontade'                                 : 'Muito à Vontade',
         'A Night At Birdland, Volume 1'                   : 'A Night At Birdland Volume 1',
         'Out to Lunch'                                    : 'Out To Lunch! ',
+        'Out to Lunch!'                                   : 'Out To Lunch! ',
         'A New Morning, Changing Weather'                 : 'A New Morning Changing Weather',
         '"Classical" Symphony / Symphony No 1'            :'"Classical" Symphony / Symphony No 1 ',
-
-
+        'Genius of Modern Music, Volume 1'                : 'genius of modern music volume one',
+        'Genius Of Modern Music: Vol. 1'                  : 'genius of modern music volume one',
     },
 
     'artist': {
@@ -87,6 +91,7 @@ LASTFM_CORRECTIONS = {
         'Oscar Peterson Trio'                 : 'The Oscar Peterson Trio',
         'Miles Davis'                         : 'Miles Davis All Stars', # Walkin'
         'Miles Davis Quintet'                 : 'The Miles Davis Quintet', # Cookin'
+        'The Miles Davis Quartet'             : 'Miles Davis', # The Musings Of Miles
         'Bill Evans Trio'                     : 'The Bill Evans Trio',
         'Bill Evans'                          : 'The Bill Evans Trio',
         'Modern Jazz Quartet'                 : 'The Modern Jazz Quartet',
@@ -257,9 +262,13 @@ def save_scrobbles(scrobbles):
         scrob.album  = scrobble.album
         scrob.timestamp = int(scrobble.timestamp)
         format_string = '%d %b %Y, %H:%M'
-        scrob.datetime = timezone.make_aware(
-            datetime.datetime.strptime(scrobble.playback_date, format_string)
-        )
+        try:
+            scrob.datetime = timezone.make_aware(
+                datetime.datetime.strptime(scrobble.playback_date, format_string)
+            )
+        except NonExistentTimeError:
+            pass # We get this from last.fm when we play things while clocks
+                 # change
         scrob.save()
         link_scrobble(scrob)
 

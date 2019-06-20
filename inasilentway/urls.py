@@ -15,12 +15,14 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 from inasilentway import views
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    url(r'^the-admin/', admin.site.urls),
+    path('account/', include('django.contrib.auth.urls')),
+
     url(r'^$', views.HomeView.as_view(), name='home'),
 
     # Different views of records - detail, edit, alternative lists
@@ -56,6 +58,11 @@ urlpatterns = [
         'submit-scrobble/',
         views.SubmitScrobbleView.as_view(),
         name='submit-scrobble'),
+    path(
+        'load-scrobbles/',
+        views.RetrieveScrobblesView.as_view(),
+        name='load-scrobbles'
+    ),
     path(
         'scrobble-retrieval-error',
         views.ScrobbleRetrievalErroView.as_view(),
