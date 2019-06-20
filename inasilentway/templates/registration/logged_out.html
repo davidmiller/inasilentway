@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block page_title %}
+  <h2 class="f3 mb3 mt0 pa5">Logged out</h2>
+{% endblock %}
+
+{% block content %}
+  <div class="flex">
+    <div class="w-50">
+      <p>You have been logged out.</p>
+      <p>
+        <a href="{% url 'login' %}">Log in</a>
+      </p>
+    </div>
+  </div> <!-- Flex -->
+{% endblock %}
