@@ -14,7 +14,7 @@
         <div class="flex">
           <div class="w-80">
             <h1 class="f1">
-              <a href="/" class="gold link underline-hover">
+              <a href="{% url 'home' %}" class="gold link underline-hover">
                 In a silent way
               </a>
             </h1>
@@ -26,7 +26,8 @@
             </form>
             <div class="flex ttu pt4 avenir pl0 ml0">
               <div class="mr2 w-50">
-                <a href="{% url 'home' %}" class="link gold hover-bg-orange hover-white pt2 pb2">
+                <a href="{% url 'record-list' %}"
+                   class="link gold hover-bg-orange hover-white pt2 pb2">
                   Collection
                 </a>
               </div>
@@ -47,13 +48,15 @@
     <div class="w-100 bg-gold avenir">
       {% block page_title %}{% endblock %}
     </div>
+    {% block content_wrapper %}
     <section>
       <div class="pa5 avenir">
         {% block content %}{% endblock %}
       </div>
     </section>
+    {% endblock %}
 
-    <div class="w-100 bg-light-red pa5 avenir">
+    <div class="w-100 bg-green pa5 avenir">
       <div class="flex">
         <div class="w-40">
           <h2 class="ttu bb f5">
@@ -75,9 +78,17 @@
             <li class="pb2">
               <a href="{% url 'top-artists' %}">Top artists</a>
             </li>
+            <li class="pb2">
+              <a href="https://tachyons.io/">
+                CSS using Tachyons
+              </a>
+            </li>
             {% if user.is_authenticated %}
               <li class="pb2">
                 <a href="{% url 'load-scrobbles' %}">Load recent scrobbles</a>
+              </li>
+              <li class="pb2">
+                <a href="{% url 'load-collection' %}">Load collection</a>
               </li>
             <li class="pb2">
               <a href="{% url 'logout' %}">Log out</a>

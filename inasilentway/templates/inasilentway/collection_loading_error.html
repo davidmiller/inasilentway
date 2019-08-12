@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block page_title %}
+  {% include 'partials/lastfm_header.html' %}
+{% endblock %}
+
+{% block content %}
+  <div>
+    <p>
+      An error occurred while attempting to load the collection from Discogs.
+    </p>
+    <p>
+      More information available in logs.
+    </p>
+  </div>
+{% endblock %}

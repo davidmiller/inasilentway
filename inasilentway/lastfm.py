@@ -70,6 +70,7 @@ LASTFM_CORRECTIONS = {
         'Birth of the Cool'                               : 'The Birth Of The Cool', # noqa
         'The Ace Of Rhythm'                               : 'The Ace Of Rhythm ', # Discogs leaves in trailing spaces on album names :/
         'Soused'                                          : 'Soused ',
+        'Your Queen Is a Reptile'                         : 'Your Queen Is A Reptile ',
         'Muito À Vontade'                                 : 'Muito à Vontade',
         'A Night At Birdland, Volume 1'                   : 'A Night At Birdland Volume 1',
         'Out to Lunch'                                    : 'Out To Lunch! ',

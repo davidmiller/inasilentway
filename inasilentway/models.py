@@ -37,11 +37,11 @@ class Artist(models.Model):
     """
     discogs_id = models.CharField(max_length=200)
     name       = models.CharField(max_length=200)
-    images     = models.CharField(max_length=200, blank=True, null=True)
+    images     = models.TextField(blank=True, null=True)
     url        = models.URLField(blank=True, null=True)
     # What are these?
-    profile    = models.CharField(max_length=200)
-    urls       = models.CharField(max_length=200, blank=True, null=True)
+    profile    = models.TextField(blank=True, null=True)
+    urls       = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return "{}: {}".format(self.id, self.name)
@@ -76,9 +76,9 @@ class Record(models.Model):
     title   = models.CharField(max_length=200, blank=True, null=True)
     year    = models.CharField(max_length=200, blank=True, null=True)
     thumb   = models.CharField(max_length=200, blank=True, null=True)
-    images  = models.CharField(max_length=200, blank=True, null=True)
+    images  = models.TextField(blank=True, null=True)
     country = models.CharField(max_length=200, blank=True, null=True)
-    notes   = models.CharField(max_length=200, blank=True, null=True)
+    notes   = models.TextField(blank=True, null=True)
     formats = models.CharField(max_length=200, blank=True, null=True)
     url     = models.CharField(max_length=200, blank=True, null=True)
     # What are these?

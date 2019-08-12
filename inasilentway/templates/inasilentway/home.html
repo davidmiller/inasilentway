@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+
+{% block content_wrapper %}
+  <div class="">
+    <section>
+      <div class="pa3 pl5 avenir bg-gold">
+        <p class="f1 b">
+          This is a music service
+        </p>
+      </div>
+    </section>
+
+    <section class="pa5 avenir f3 lh-copy pb5 flex">
+      <p class="measure fl w-50 pr3">
+        This service contains a
+        <a href="{% url 'record-list' %}">record collection</a> from
+        <a href="https://discogs.com">discogs.com</a>
+        and a
+        <a href="{% url 'scrobble-list' %}">listening history</a>
+        from <a href="https://last.fm">last.fm</a>.
+        Those things often don't play nicely together.
+        Vinyl records lack the necessary
+        <a href="https://en.wikipedia.org/wiki/ID3">metadata tags</a>.
+        The service tries to reduce the friction as much as possible.
+        Lots of that is about thoughtfully displaying lists of things.
+        For a very small number of people (1) it also helps with updating
+        lists on the internet.
+      </p>
+      <p class="measure fl w-50 pl3">
+
+      </p>
+    </section>
+
+    <section class="pa5 avenir bg-green">
+      <h2 class="f2 b">Infrequently asked questions</h2>
+
+      <div class="flex">
+        <div class="fl w-66">
+          <h3 class="ttu bb">Do you really update a list on the internet every time you listen to a record?</h3>
+          <p class="f3 lh-copy">
+            Yes.
+          </p>
+
+          <h3 class="ttu bb">Isn't that a bit OCD?</h3>
+          <p class="f3 lh-copy">
+            Yes.
+          </p>
+
+          <h3 class="ttu bb">Why do you do that?</h3>
+          <p class="f3 lh-copy">
+            Everyone* likes a good list. Ask
+            <a href="https://www.goodreads.com/">goodreads</a> about their 90 million users.
+            I didn't keep a list before I discovered
+            <a href="https://vinylscrobbler.com">vinylscrobbler.com</a>. That service meant it wasn't very much
+            work. After a decade or so it's interesting to spot patterns in your listening history. Try it and
+            come back to me in 10 years.
+          </p>
+          <p>
+            * some people
+          </p>
+
+          <h3 class="ttu bb">Why did you make this?</h3>
+          <p class="f3 lh-copy">
+            Before I started this project, I was already using <a href="https://discogs.com">discogs</a>,
+            <a href="https://last.fm">last.fm</a> and
+            <a href="https://vinylscrobbler.com">vinylscrobbler.com</a> to do broadly the same thing.
+            Around the time I started this, discogs had recently re-written their collection interface, much
+            to the chagrin of long time users, who were complaining about performance and loss of functionality.
+            At the same time vinylscrobbler was experiencing stability and performance issues of their own. I
+            decided that given how good the discogs and last.fm APIs are, I could knock something up to do what
+            I wanted on a Saturday morning. Then I carried on tweaking it, mostly in 5-10 minute bursts.
+          </p>
+          <p class="f3 lh-copy">
+            In my opinion it's also a quite significantly prettier thing to spend time looking at than either
+            last.fm or discogs.
+          </p>
+
+          <h3 class="ttu bb">Why did you call it In a silent way?</h3>
+          <p class="f3 lh-copy">
+            I like slightly obtuse names. It's named after a Miles Davis album.
+          </p>
+          <p class="f3 lh-copy">
+            I don't listen to the album very much.
+          </p>
+
+        </div>
+      </div>
+    </section>
+
+
+    <section class="pa5 avenir pb5 flex">
+      <div class=" fl w-50 pr4">
+        <h2 class="f2 b">
+          How this works
+        </h2>
+        <p class="lh-copy f3">
+          The <a href="https://github.com/davidmiller/inasilentway">code for this service</a>
+          uses the <a href="https://github.com/discogs/discogs_client">discogs API client</a>
+          to create a local copy of a record collection.
+          A <a href="http://github.com/django/django">django</a> application makes that collection
+          browsable, searchable and filterable. It uses
+          <a href="https://github.com/pylast/pylast">pylast</a> - a python interface to last.fm
+          to fetch and submit last.fm scrobbles. When new scrobbles arrive or new
+          records are added to the collection we try to link scrobbles to records. This process
+          is not 100% correct, but it's pretty good.
+        </p>
+      </div>
+      <div class=" fl w-50 pl4">
+        <h2 class="f2 b">
+
+        </h2>
+        <p class="lh-copy f3">
+
+        </p>
+      </div>
+    </section>
+
+
+  </div>
+{% endblock %}

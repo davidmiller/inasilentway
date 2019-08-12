@@ -25,6 +25,8 @@ urlpatterns = [
 
     url(r'^$', views.HomeView.as_view(), name='home'),
 
+    path('collection/', views.CollectionView.as_view(), name='record-list'),
+
     # Different views of records - detail, edit, alternative lists
     path('record/<int:pk>/<slug>', views.RecordView.as_view(), name='record'),
     path(
@@ -67,6 +69,16 @@ urlpatterns = [
         'scrobble-retrieval-error',
         views.ScrobbleRetrievalErroView.as_view(),
         name='scrobble-retrieval-error'
+    ),
+    path(
+        'load-collection/',
+        views.RetrieveCollectionView.as_view(),
+        name='load-collection'
+    ),
+    path(
+        'collection-loading-error',
+        views.CollectionLoadingErroView.as_view(),
+        name='collection-loading-error'
     ),
     path(
         'listening-history/',

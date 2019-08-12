@@ -14,8 +14,12 @@ from django.utils.functional import cached_property
 from django.views.generic import ListView, DetailView, TemplateView, View
 from django.views.generic.edit import DeleteView, FormView
 
-from inasilentway import forms, lastfm
+from inasilentway import discogs, forms, lastfm
 from inasilentway.models import Record, Artist, Genre, Label, Scrobble, Style
+
+
+class HomeView(TemplateView):
+    template_name = 'inasilentway/home.html'
 
 
 class RecordListView(ListView):
@@ -74,7 +78,7 @@ class RecordListView(ListView):
         return qs
 
 
-class HomeView(RecordListView):
+class CollectionView(RecordListView):
     page_class = 'collection'
 
 
@@ -260,9 +264,22 @@ class ScrobbleRetrievalErroView(TemplateView):
     template_name = 'inasilentway/scrobble_retrieval_error.html'
 
 
+class RetrieveCollectionView(View):
+    def get(self, *a, **k):
+        try:
+            discogs.load_collection()
+            return redirect(reverse('record-list'))
+        except discogs.discogs_client.exceptions.HTTPError:
+            return redirect(reverse('collection-retrieval-error'))
+
+
+class CollectionLoadingErroView(TemplateView):
+    template_name = 'inasilentway/collection_loading_error.html'
+
+
 class DeleteRecordView(DeleteView):
     model = Record
-    success_url = reverse_lazy('home')
+    success_url = reverse_lazy('record-list')
 
 
 class ArtistView(DetailView):
