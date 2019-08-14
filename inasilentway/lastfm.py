@@ -30,10 +30,9 @@ LASTFM_PRE_SUBMIT_SUBS = {
 }
 
 #
-# Some records have additional tracks - for instance a 'bonus CD' or
-# '45 when this happens we exclude them, for now with hard coded Track.exclude()
-# criteria. Later we expect to be able to specify either sides or tracks in the
-# UI itself.
+# Some records have additional tracks in the Discogs listing - for instance a
+# bonus CD, or a 'track' for the title of a side of an album. Wwhen this
+# happens we exclude them, for now with hard coded Track.exclude() criteria.
 #
 LASTFM_PRE_SUBMIT_TRACKS = {
     # Title:Artist.first().name : {method: {**kwargs}}
