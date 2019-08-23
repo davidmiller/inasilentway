@@ -36,6 +36,10 @@
         </a>
         <p class="w-60">
           {{ record.title }}
+          <br />
+          {% for artist in record.artist.all %}
+            {{ artist.name }}{% if not forloop.last %},{% endif %}
+        {% endfor %}
         </p>
       </div>
       {% if forloop.counter|divisibleby:"5" %}
