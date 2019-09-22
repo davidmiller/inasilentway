@@ -360,11 +360,17 @@ class ListeningHistoryView(TemplateView):
 
     # Top artist lists
     def _top_scrobbles_for_qs(self, qs, limit=25):
-        return qs.values(
+        result = qs.values(
             'artist').annotate(total=Count('artist')).order_by('-total')[:limit]
+        for a in result:
+            artist = Artist.objects.filter(name=a['artist']).first()
+            if artist:
+                a['url'] = artist.get_absolute_url()
+        return result
 
     @cached_property
     def get_top_lastfm_artists_all_time(self):
+        print( self._top_scrobbles_for_qs(Scrobble.objects.all()))
         return self._top_scrobbles_for_qs(Scrobble.objects.all())
 
     def get_top_lastfm_artists_this_year(self):

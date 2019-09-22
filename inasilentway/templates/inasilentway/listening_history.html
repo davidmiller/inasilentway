@@ -108,7 +108,13 @@
       <ol class="pl4">
         {% for artist in view.get_top_lastfm_artists_all_time %}
           <li>
+            {% if artist.url %}
+              <a href="{{ artist.url }}">
+            {% endif %}
             {{ artist.artist|slice:":30" }}
+            {% if artist.url %}
+              </a>
+            {% endif %}
             <span class="fr">{{ artist.total | intcomma }}</span>
           </li>
         {% endfor %}

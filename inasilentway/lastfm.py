@@ -403,6 +403,10 @@ def scrobble_record(record, when):
 
     tracks = prepare_tracks(track_set, artist, record.title, when)
 
+    # import logging
+    # pylast.logger.setLevel(logging.DEBUG)
+    # pylast.logger.addHandler(logging.StreamHandler())
+
     api.scrobble_many(tracks)
 
     apicall = time.time() - t1

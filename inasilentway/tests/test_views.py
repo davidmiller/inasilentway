@@ -106,3 +106,29 @@ class LabelViewTestCase(TestCase):
 
         self.assertEqual(200, resp.status_code)
         self.assertEqual('Label: Blue Note', view.page_subtitle)
+
+
+class ListeningHistoryViewTestCase(TestCase):
+    def test_get_top_lastfm_artists_all_time(self):
+        scrobble = models.Scrobble.objects.create(
+            artist='Cole Porter', title='Love For Sale'
+        )
+        scrobble = models.Scrobble.objects.create(
+            artist='Cole Porter', title='What Is This Thing Called Love'
+        )
+        artist = models.Artist.objects.create(
+            discogs_id=1, name='Cole Porter'
+        )
+
+        view = views.ListeningHistoryView()
+
+        expected = [
+            {
+                'artist': 'Cole Porter',
+                'total' : 2,
+                'url'   : '/artist/1/cole-porter/'
+            }
+        ]
+
+        top_artists = view.get_top_lastfm_artists_all_time
+        self.assertEqual(expected, list(top_artists))
