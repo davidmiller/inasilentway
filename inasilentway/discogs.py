@@ -1,6 +1,7 @@
 """
 Interacting with Discogs from Inasilentway
 """
+import json
 import time
 
 from dateutil import parser
@@ -26,10 +27,6 @@ def save_artist_from_discogs_data(artist_data):
 
     art.name    = artist_data.name
     try:
-        art.images  = artist_data.images
-    except discogs_client.exceptions.HTTPError:
-        pass  # 404 on the artist images happens sometimes apparently?
-    try:
         art.url     = artist_data.url
     except discogs_client.exceptions.HTTPError:
         pass  # 404 on the artist images happens sometimes apparently?
@@ -43,6 +40,25 @@ def save_artist_from_discogs_data(artist_data):
         pass  # 404 on the artist images happens sometimes apparently?
 
     art.save()
+
+    try:
+        if not isinstance(artist_data.images, list):
+            images  = json.loads(artist_data.images)
+        else:
+            images = artist_data.images
+
+        art.artistimage_set.all().delete()
+        for image in images:
+            del image['uri150']
+            image['artist'] = art
+            image['category'] = image['type']
+            del image['type']
+            image = models.ArtistImage.objects.create(**image)
+            image.save()
+
+    except discogs_client.exceptions.HTTPError:
+        pass  # 404 on the artist images happens sometimes apparently?
+
     return art
 
 

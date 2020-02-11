@@ -49,13 +49,40 @@ class Artist(models.Model):
     def get_absolute_url(self):
         return reverse('artist', args=[self.id, slugify(self.name)])
 
+    def get_primary_image(self):
+        return self.artistimage_set.get(category='primary')
+
+    def get_secondary_images(self):
+        return self.artistimage_set.filter(category='secondary').order_by('-height')
+
+
+class ArtistImage(models.Model):
+    """
+    An Image of an Artist
+
+    {
+    'uri': 'https://img.discogs.c....jpg',
+    'height': 729,
+    'width': 600,
+    'resource_url': 'https://img.discogs.co...mp.jpg',
+    'type': 'primary',
+    'uri150': 'https://img.discogs.c...p.jpg'
+    }
+    """
+    artist       = models.ForeignKey(Artist, on_delete=models.CASCADE)
+    uri          = models.URLField(blank=True, null=True)
+    height       = models.CharField(max_length=30, blank=True, null=True)
+    width        = models.CharField(max_length=30, blank=True, null=True)
+    resource_url = models.URLField(blank=True, null=True)
+    category     = models.CharField(max_length=150, blank=True, null=True)
+
 
 class Label(models.Model):
     """
     A record label
     """
     discogs_id = models.CharField(max_length=200)
-    name = models.CharField(max_length=200)
+    name       = models.CharField(max_length=200)
 
     def get_absolute_url(self):
         return reverse('label', args=[self.id])

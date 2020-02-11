@@ -2,6 +2,24 @@
 {% load humanize %}
 {% block this_month_charts %}
     <div class="w-30 mr5">
+        <div class="flex">
+          <div class="w-50">
+            <h2 class="f6 ttu bb">
+              Artists
+            </h2>
+            <p class="b f4">
+              {{ view.get_number_of_artists_this_year | intcomma }}
+            </p>
+          </div>
+          <div class="w-50">
+            <h2 class="f6 ttu bb">
+              (Prev)
+            </h2>
+            <p class="b f4">
+              {{ view.get_number_of_artists_last_year | intcomma }}
+            </p>
+          </div>
+        </div>
       <ol class="pl4">
         {% for artist in view.get_top_lastfm_artists_this_year %}
           <li>

@@ -358,6 +358,15 @@ class ListeningHistoryView(TemplateView):
     template_name = 'inasilentway/listening_history.html'
     page_title = 'Listening history'
 
+    def _get_scrobbles_between(self, start, end):
+        """
+        Return a queryset of scrobbles between two dates
+        """
+        return Scrobble.objects.filter(
+            timestamp__gte=time.mktime(start.timetuple()),
+            timestamp__lt=time.mktime(end.timetuple())
+        )
+
     # Top artist lists
     def _top_scrobbles_for_qs(self, qs, limit=25):
         result = qs.values(
@@ -415,10 +424,7 @@ class ListeningHistoryView(TemplateView):
         scrobbles per day between them
         """
         days = (end - start).days
-        qs   = Scrobble.objects.filter(
-            timestamp__gte=time.mktime(start.timetuple()),
-            timestamp__lt=time.mktime(end.timetuple())
-        )
+        qs   = self._get_scrobbles_between(start, end)
         count = qs.count()
 
         return {
@@ -458,19 +464,13 @@ class ListeningHistoryView(TemplateView):
     def get_scrobble_graph_this_month(self):
         now = datetime.datetime.now()
         start = datetime.datetime(now.year, now.month, 1)
-        queryset = Scrobble.objects.filter(
-            timestamp__gte=time.mktime(start.timetuple()),
-            timestamp__lt=time.mktime(now.timetuple())
-        )
+        queryset = self._get_scrobbles_between(start, now)
         return lastfm.scrobbles_by_day_for_queryset(queryset, min_values=12)
 
     def get_scrobble_graph_this_year(self):
         now = datetime.datetime.now()
         start = datetime.datetime(now.year, 1, 1)
-        qs = Scrobble.objects.filter(
-            timestamp__gte=time.mktime(start.timetuple()),
-            timestamp__lt=time.mktime(now.timetuple())
-        )
+        qs = self._get_scrobbles_between(start, now)
         data = lastfm.scrobbles_by_month_for_queryset(qs)
         months = {
             1: 'Jan',
@@ -510,28 +510,31 @@ class ListeningHistoryYearView(ListeningHistoryView):
         self.year  = k.get('year', None)
         self.start = datetime.datetime(self.year, 1, 1)
         self.end   = datetime.datetime(self.year + 1, 1, 1)
+        self.qs    = self._get_scrobbles_between(self.start, self.end)
         self.lastfm_subheading = 'Last.fm &mdash; {}'.format(self.year)
 
         return super().dispatch(*a, **k)
+
+    def get_number_of_artists_this_year(self):
+        artists = self.qs.values_list('artist', flat=True).distinct()
+        return len(artists)
+
+    def get_number_of_artists_last_year(self):
+        qs = self._get_scrobbles_between(
+            self.start - datetime.timedelta(days=365),
+            self.end - datetime.timedelta(days=365),
+        )
+        artists = qs.values_list('artist', flat=True).distinct()
+        return len(artists)
 
     def get_scrobbles_per_day_this_year(self):
         return self._scrobbles_per_day_between(self.start, self.end)
 
     def get_scrobble_graph_this_year(self):
-        qs = Scrobble.objects.filter(
-            timestamp__gte=time.mktime(self.start.timetuple()),
-            timestamp__lt=time.mktime(self.end.timetuple())
-        )
-        return lastfm.scrobbles_by_month_for_queryset(qs)
+        return lastfm.scrobbles_by_month_for_queryset(self.qs)
 
     def get_top_lastfm_artists_this_year(self):
-        scrobbles = self._top_scrobbles_for_qs(
-            Scrobble.objects.filter(
-                timestamp__gte=time.mktime(self.start.timetuple()),
-                timestamp__lt=time.mktime(self.end.timetuple())
-            ),
-            limit=50
-        )
+        scrobbles = self._top_scrobbles_for_qs(self.qs, limit=50)
 
         prev_year_rankings = {}
         prev_year_top = self._top_scrobbles_for_qs(
@@ -591,26 +594,11 @@ class ListeningHistoryMonthView(ListeningHistoryView):
         return super().dispatch(*a, **k)
 
     def get_scrobbles_per_day_this_month(self):
-#        today = datetime.date.today()
-#        year  = today.year
-#        month = today.month
-#        start = datetime.datetime(year, month, 1)
-        # try:
-        #     end   = datetime.datetime(year, month, today.day +1)
-        # except ValueError:
-        #     end = datetime.datetime(year, month, today.day)
-        #     end = end + datetime.timedelta(days=1)
-
         return self._scrobbles_per_day_between(self.start, self.end)
 
 
     def get_scrobble_graph_this_month(self):
-#        now = datetime.datetime.now()
-#        start = datetime.datetime(now.year, now.month, 1)
-        queryset = Scrobble.objects.filter(
-            timestamp__gte=time.mktime(self.start.timetuple()),
-            timestamp__lt=time.mktime(self.end.timetuple())
-        )
+        queryset = self._get_scrobbles_between(self.start, self.end)
         return lastfm.scrobbles_by_day_for_queryset(queryset, min_values=12)
 
 

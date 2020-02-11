@@ -42,11 +42,15 @@ LASTFM_PRE_SUBMIT_TRACKS = {
     'Mess:Liars': [{'exclude': {'position__startswith': 'CD'}}],
     'O Amor, O Sorriso E A Flor:João Gilberto': [{'exclude': {'position__startswith': 'CD'}}],
     'Ballads:The John Coltrane Quartet': [{'exclude': {'position': ''}}],
+    'Ghosteen:Nick Cave & The Bad Seeds': [{'exclude': {'position': ''}}],
     'Are You Experienced / Axis: Bold As Love:The Jimi Hendrix Experience': [{'exclude': {'position': ''}}],
     'The Modern Jazz Quartet:The Modern Jazz Quartet': [{'exclude': {'position': ''}}],
     'Chapter Four: Alive In New York:Gato Barbieri': [{'exclude': {'position': ''}}],
     'Bird / The Savoy Recordings (Master Takes):Charlie Parker': [{'exclude': {'position': ''}}],
     'Memorial:Clifford Brown': [{'exclude': {'position': ''}}],
+    'Misterioso:The Thelonious Monk Quartet': [{'exclude': {'title__icontains': 'bonus'}}],
+    '... And Star Power:Foxygen': [{'exclude': {'position': ''}}],
+    "This One's For Blanton:Duke Ellington": [{'exclude': {'position': ''}}],
 }
 
 
@@ -59,25 +63,30 @@ LASTFM_CORRECTIONS = {
     # We keep a mapping of known corrections here so we can move between them
     #
     'album': {
-        # lastfm name                                     : disgogs name
-        'Desafinado: Bossa Nova & Jazz Samba'             : 'Desafinado Coleman Hawkins Plays Bossa Nova & Jazz Samba', # noqa
-        'Oscar Peterson Plays the Duke Ellington Songbook': 'The Duke Ellington Songbook', # noqa
-        'Standard Time Vol.2 - Intimacy Calling'          : 'Standard Time Vol. 2 (Intimacy Calling)', # noqa
-        'White Light/White Heat'                          : 'White Light / White Heat', # noqa
-        'Thelonious Monk Plays Duke Ellington'            : 'Plays Duke Ellington', # noaa
-        'Nights Of Ballads & Blues'                       : 'Nights Of Ballads And Blues', # noqa
-        'Birth of the Cool'                               : 'The Birth Of The Cool', # noqa
-        'The Ace Of Rhythm'                               : 'The Ace Of Rhythm ', # Discogs leaves in trailing spaces on album names :/
-        'Soused'                                          : 'Soused ',
-        'Your Queen Is a Reptile'                         : 'Your Queen Is A Reptile ',
-        'Muito À Vontade'                                 : 'Muito à Vontade',
-        'A Night At Birdland, Volume 1'                   : 'A Night At Birdland Volume 1',
-        'Out to Lunch'                                    : 'Out To Lunch! ',
-        'Out to Lunch!'                                   : 'Out To Lunch! ',
-        'A New Morning, Changing Weather'                 : 'A New Morning Changing Weather',
-        '"Classical" Symphony / Symphony No 1'            :'"Classical" Symphony / Symphony No 1 ',
-        'Genius of Modern Music, Volume 1'                : 'genius of modern music volume one',
-        'Genius Of Modern Music: Vol. 1'                  : 'genius of modern music volume one',
+        # lastfm name                                           : disgogs name
+        'Desafinado: Bossa Nova & Jazz Samba'                   : 'Desafinado Coleman Hawkins Plays Bossa Nova & Jazz Samba', # noqa
+        'Oscar Peterson Plays the Duke Ellington Songbook'      : 'The Duke Ellington Songbook', # noqa
+        'Standard Time Vol.2 - Intimacy Calling'                : 'Standard Time Vol. 2 (Intimacy Calling)', # noqa
+        'White Light/White Heat'                                : 'White Light / White Heat', # noqa
+        'Thelonious Monk Plays Duke Ellington'                  : 'Plays Duke Ellington', # noaa
+        'Nights Of Ballads & Blues'                             : 'Nights Of Ballads And Blues', # noqa
+        'Birth of the Cool'                                     : 'The Birth Of The Cool', # noqa
+        'The Ace Of Rhythm'                                     : 'The Ace Of Rhythm ', # Discogs leaves in trailing spaces on album names :/
+        'Soused'                                                : 'Soused ',
+        'Your Queen Is a Reptile'                               : 'Your Queen Is A Reptile ',
+        'Muito À Vontade'                                       : 'Muito à Vontade',
+        'A Night At Birdland, Volume 1'                         : 'A Night At Birdland Volume 1',
+        'A Night at Birdland, Volume 2'                         : 'A Night At Birdland Volume 2',
+        'Out to Lunch'                                          : 'Out To Lunch! ',
+        'Out to Lunch!'                                         : 'Out To Lunch! ',
+        'A New Morning, Changing Weather'                       : 'A New Morning Changing Weather',
+        '"Classical" Symphony / Symphony No 1'                  :'"Classical" Symphony / Symphony No 1 ',
+        'Genius of Modern Music, Volume 1'                      : 'genius of modern music volume one',
+        'Genius Of Modern Music: Vol. 1'                        : 'genius of modern music volume one',
+        'The Complete Jelly Roll Morton Volumes 7/8 (1930-1940)': 'The Complete Jelly Roll Morton Volumes 7/8 (1930-1940) ',
+        '…And Star Power'                                       : '... And Star Power',
+        '801 / 801 Live'                                        : '801 Live',
+        'Blood on the Tracks'                                   : 'Blood On The Tracks',
     },
 
     'artist': {
@@ -99,6 +108,9 @@ LASTFM_CORRECTIONS = {
         'Captain Beefheart & His Magic Band'  : 'Captain Beefheart And His Magic Band',
         'The (International) Noise Conspiracy': 'The International Noise Conspiracy',
         'Sonny Rollins'                       : 'Sonny Rollins Quartet',
+        'Thelonious Monk'                     : 'The Thelonious Monk Orchestra',
+        'Phil Manzanera'                      : '801',
+        'HAIM'                                : 'Haim (2)',
 
     }
 }

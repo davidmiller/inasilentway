@@ -6,66 +6,104 @@
   <h2 class="f3 mb3 mt0 pa5">
     {{ object.name }}
   </h2>
-
 {% endblock %}
 {% block content %}
-  <div class="flex">
-    <div class="w-50 pr5">
-      <h3 class="f6 ttu bb mt0 mb3">
-        Details
-      </h3>
-      <p>
-        {{ object.profile }}
-      </p>
 
-    </div>
+  <div class="flex">
+
     <div class="w-50 pr5">
       <h3 class="f6 ttu bb mt0 mb3">
         Records
       </h3>
-      <ol>
-        {% for record in object.record_set.all %}
-          <li>
+
+      {% for record in object.record_set.all %}
+        {% if forloop.counter0|divisibleby:2 %}
+          <div class="flex">
+          {% endif %}
+          <div class="w-50 pr3 pb3">
             <a href="{{ record.get_absolute_url }}">
+              <img src="{{ record.thumb}}">
+              <br />
               {{ record.title }}
             </a>
-          </li>
-        {% endfor %}
-      </ol>
+          </div>
+          {% if not forloop.counter0|divisibleby:2 %}
+          </div>
+        {% endif %}
+        {% if forloop.last %}
+          {% if forloop.counter0|divisibleby:2 %}
     </div>
+     {% endif %}
+        {% endif %}
+      {% endfor %}
+
+    </div>
+
+    <div class="w-50 pr5">
+      <h3 class="f6 ttu bb mt0 mb3">
+        Scrobbles ({{ object.scrobble_set.count | intcomma }})
+      </h3>
+      {% bar_chart view.scrobbles_by_year %}
+
+    </div>
+
+
   </div>
 
   <div class="flex">
+
     <div class="w-100 mt3 mb3 ">
-      <h3 class="f6 ttu bb">
-        Scrobbles ({{ object.scrobble_set.count | intcomma }})
+
+      <h3 class="f6 ttu bb mt0 mb3">
+        Details
       </h3>
+
       <div class="flex">
-        <div class="w-50 pr3 br">
-          {% bar_chart view.scrobbles_by_year %}
+        <div class="w-50 br">
+          {% with object.get_primary_image as image %}
+            <img src="{{ image.uri }}" width="{{ image.width }}" height="{{ image.height }}">
+          {% endwith %}
         </div>
 
-        <div class="w-50"></div>
+        <div class="w-50 pl3">
+          <p>
+            {{ object.profile }}
+          </p>
+        </div>
       </div>
     </div>
   </div>
 
+
+
   <div class="flex">
     <div class="w-100">
       <h3 class="f6 ttu bb">
-        Unmanaged API fields
+        Images
       </h3>
-
-      <ul class="list">
-        <li>Images: {{ object.images }}</li>
-        <li>Url: {{ object..url}}</li>
-        <ul class="list">
-          <li>Urls: {{ object.urls }}</li>
-        </ul>
-
-      </ul>
     </div>
-
   </div>
+
+  {% for image in object.get_secondary_images %}
+    <img src="{{ image.uri }}" width="{{ image.width }}" height="{{ image.height }}">
+  {% endfor %}
+
+
+  <!-- <div class="flex"> -->
+      <!--   <div class="w-100"> -->
+        <!--     <h3 class="f6 ttu bb"> -->
+          <!--       Unmanaged API fields -->
+          <!--     </h3> -->
+
+        <!--     <ul class="list"> -->
+          <!--       <li>Url: {{ object..url}}</li> -->
+          <!--       <ul class="list"> -->
+            <!--         <li>Urls: {{ object.urls }}</li> -->
+            <!--       </ul> -->
+
+          <!--     </ul> -->
+        <!--   </div> -->
+
+      <!-- </div> -->
 
 {% endblock %}
