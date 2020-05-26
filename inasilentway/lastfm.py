@@ -41,6 +41,8 @@ LASTFM_PRE_SUBMIT_TRACKS = {
     'Live At Carnegie Hall:Ryan Adams': [{'exclude': {'title': 'Untitled'}}, {'exclude': {'title__contains': 'November'}}],
     'Mess:Liars': [{'exclude': {'position__startswith': 'CD'}}],
     'O Amor, O Sorriso E A Flor:João Gilberto': [{'exclude': {'position__startswith': 'CD'}}],
+    'Bad As Me:Tom Waits': [{'exclude': {'position__startswith': 'CD'}}],
+    'Yankee Hotel Foxtrot:Wilco': [{'exclude': {'position__startswith': 'CD'}}],
     'Ballads:The John Coltrane Quartet': [{'exclude': {'position': ''}}],
     'Ghosteen:Nick Cave & The Bad Seeds': [{'exclude': {'position': ''}}],
     'Are You Experienced / Axis: Bold As Love:The Jimi Hendrix Experience': [{'exclude': {'position': ''}}],
@@ -51,6 +53,26 @@ LASTFM_PRE_SUBMIT_TRACKS = {
     'Misterioso:The Thelonious Monk Quartet': [{'exclude': {'title__icontains': 'bonus'}}],
     '... And Star Power:Foxygen': [{'exclude': {'position': ''}}],
     "This One's For Blanton:Duke Ellington": [{'exclude': {'position': ''}}],
+    "Africa / Brass:The John Coltrane Quartet": [{'exclude': {'position': ''}}],
+    "Highlights From La Damnation De Faust:Hector Berlioz": [{'exclude': {'position': ''}}],
+    "Automatic For The People:R.E.M.": [{'exclude': {'position': ''}}],
+    "A Drum Is A Woman:Duke Ellington And His Orchestra": [{'exclude': {'position': ''}}],
+    "Ellington At Newport:Duke Ellington And His Orchestra": [{'exclude': {'position': ''}}],
+    "Bossa Nova!:João Gilberto": [{'exclude': {'position__startswith': 'CD'}}],
+    "Absolutely Free:The Mothers": [{'exclude': {'position': ''}}],
+    "Imitations:Mark Lanegan": [{'exclude': {'position__startswith': 'CD'}}],
+    "Journey To The Mountain Of Forever:Binker And Moses": [{'exclude': {'position': ''}}],
+}
+
+# Sometimes we would like to pick an artist from a record that has many.
+
+# e.g. Discogs lists Earl Hines as the first artist on The Louis Armstrong
+# Story vol 3. Louis Armstrong and Earl Hines. With love, Earl is not why we're here.
+LASTFM_PRE_SUBMIT_ARTIST_CHOICES = {
+    'The Louis Armstrong Story - Vol. 3': 'Louis Armstrong',
+    'The Greatest Trumpet Of Them All': 'The Dizzy Gillespie Octet',
+    'Things Are Getting Better': 'Cannonball Adderley',
+    'Oleo': 'Grant Green Quartet',
 }
 
 
@@ -87,6 +109,7 @@ LASTFM_CORRECTIONS = {
         '…And Star Power'                                       : '... And Star Power',
         '801 / 801 Live'                                        : '801 Live',
         'Blood on the Tracks'                                   : 'Blood On The Tracks',
+        'Master Takes. The Savoy Recordings'                    : 'Master Takes / The Savoy Recordings',
     },
 
     'artist': {
@@ -109,6 +132,7 @@ LASTFM_CORRECTIONS = {
         'The (International) Noise Conspiracy': 'The International Noise Conspiracy',
         'Sonny Rollins'                       : 'Sonny Rollins Quartet',
         'Thelonious Monk'                     : 'The Thelonious Monk Orchestra',
+        'Thelonious Monk'                     : 'Thelonious Monk Septet',
         'Phil Manzanera'                      : '801',
         'HAIM'                                : 'Haim (2)',
 
@@ -158,6 +182,7 @@ def match_artist(artist_name):
     if len(artist_matches) > 1:
         import pdb; pdb.set_trace() # noqa
         print(artist_matches)
+
 
 def _match_track(album, title):
     """
@@ -344,6 +369,23 @@ def load_last_24_hours_of_scrobbles():
     # )
     # save_scrobbles(scrobbles)
 
+
+def prepare_artist(record):
+    """
+    Sometimes we would like to pick an artist from a record
+    that has many.
+
+    e.g. Discogs lists Earl Hines as the first artist on
+    The Louis Armstrong Story vol 3. Louis Armstrong and Earl Hines.
+    With love, Earl is not why we're here.
+    """
+    if record.title in LASTFM_PRE_SUBMIT_ARTIST_CHOICES:
+        decision = LASTFM_PRE_SUBMIT_ARTIST_CHOICES[record.title]
+        if decision in [a.name for a in record.artist.all()]:
+            return decision
+    return record.artist.first().name
+
+
 def prepare_tracks(tracks, artist, title, when):
     """
     Given an iterable of tracks to submit, the name of the artist,
@@ -401,7 +443,7 @@ def scrobble_record(record, when):
     print('Scrobbling record started')
     t1 = time.time()
 
-    artist = record.artist.first().name
+    artist = prepare_artist(record)
     track_set = record.track_set.all()
 
     # auto filtering of tracks e.g. bonus CDs

@@ -43,7 +43,10 @@ def save_artist_from_discogs_data(artist_data):
 
     try:
         if not isinstance(artist_data.images, list):
-            images  = json.loads(artist_data.images)
+            if artist_data.images is None:
+                images = []
+            else:
+                images  = json.loads(artist_data.images)
         else:
             images = artist_data.images
 
