@@ -263,7 +263,7 @@ def match_scrobble(scrobble):
 
     (Shorthand function to avoid having to split parameters to match() )
     """
-    return match(scrobble.artist, scrobble.album, scrobble.title)
+    return match(str(scrobble.artist), str(scrobble.album), str(scrobble.title))
 
 
 def link_scrobble(scrobble):
