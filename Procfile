@@ -1,1 +1,1 @@
-web: gunicorn elcid.wsgi
+web: gunicorn inasilentway.wsgi
