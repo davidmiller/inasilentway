@@ -70,9 +70,10 @@ LASTFM_PRE_SUBMIT_TRACKS = {
 # Story vol 3. Louis Armstrong and Earl Hines. With love, Earl is not why we're here.
 LASTFM_PRE_SUBMIT_ARTIST_CHOICES = {
     'The Louis Armstrong Story - Vol. 3': 'Louis Armstrong',
-    'The Greatest Trumpet Of Them All': 'The Dizzy Gillespie Octet',
-    'Things Are Getting Better': 'Cannonball Adderley',
-    'Oleo': 'Grant Green Quartet',
+    'The Greatest Trumpet Of Them All'  : 'The Dizzy Gillespie Octet',
+    'Things Are Getting Better'         : 'Cannonball Adderley',
+    'Oleo'                              : 'Grant Green Quartet',
+    'In Orbit'                          : 'Clark Terry',
 }
 
 
