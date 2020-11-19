@@ -12,11 +12,14 @@ import requests
 
 from inasilentway import models
 
-
-api = discogs_client.Client(
-    'Inasilentway',
-    user_token=settings.DISCOGS_USER_TOKEN
-)
+try:
+    api = discogs_client.Client(
+        'Inasilentway',
+        user_token=settings.DISCOGS_USER_TOKEN
+    )
+except AttributeError:
+    print('No Discogs user token found')
+    api = None
 
 def save_artist_from_discogs_data(artist_data):
     """

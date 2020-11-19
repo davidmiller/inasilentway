@@ -171,6 +171,9 @@ try:
     )
 except pylast.NetworkError:
     print('No network available')
+except AttributeError:
+    print('No Last.fm API details')
+    api = None
 
 def match_artist(artist_name):
     """
