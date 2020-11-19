@@ -11,20 +11,20 @@
   <body class="">
     {% block header %}
       <div class="w-100 pa4 pl5 mt0 bg-navy athelas">
-        <div class="flex">
-          <div class="w-80">
+        <div class="flex-ns">
+          <div class="w-80 w-100-s">
             <h1 class="f1">
               <a href="{% url 'home' %}" class="gold link underline-hover">
                 In a silent way
               </a>
             </h1>
           </div>
-          <div class="w-20 pt4 mt2">
+          <div class="w-20 w-100-s pt4 mt2">
             <form method="get" action="{% url 'search' %}">
               {% csrf_token %}
               <input type="text" name="query" id="searchBox" placeholder="Search">
             </form>
-            <div class="flex ttu pt4 avenir pl0 ml0">
+            <div class="flex-ns ttu pt4 avenir pl0 ml0">
               <div class="mr2 w-50">
                 <a href="{% url 'record-list' %}"
                    class="link gold hover-bg-orange hover-white pt2 pb2">
@@ -49,16 +49,16 @@
       {% block page_title %}{% endblock %}
     </div>
     {% block content_wrapper %}
-    <section>
-      <div class="pa5 avenir">
-        {% block content %}{% endblock %}
-      </div>
-    </section>
+      <section>
+        <div class="pa5 avenir">
+          {% block content %}{% endblock %}
+        </div>
+      </section>
     {% endblock %}
 
     <div class="w-100 bg-green pa5 avenir">
       <div class="flex">
-        <div class="w-40">
+        <div class="w-40-ns">
           <h2 class="ttu bb f5">
             Less Useful Links
           </h2>
@@ -83,19 +83,21 @@
                 CSS using Tachyons
               </a>
             </li>
-            {% if user.is_authenticated %}
-              <li class="pb2">
-                <a href="{% url 'load-scrobbles' %}">Load recent scrobbles</a>
-              </li>
-              <li class="pb2">
-                <a href="{% url 'load-collection' %}">Load collection</a>
-              </li>
+            {% if request.META.HTTP_HOST %}
+              {% if user.is_authenticated %}
+                <li class="pb2">
+                  <a href="{% url 'load-scrobbles' %}">Load recent scrobbles</a>
+                </li>
+            <li class="pb2">
+              <a href="{% url 'load-collection' %}">Load collection</a>
+            </li>
             <li class="pb2">
               <a href="{% url 'logout' %}">Log out</a>
             {% else %}
               <a href="{% url 'login' %}">Log in</a>
             </li>
           {% endif %}
+        {% endif %}
           </ul>
         </div>
       </div>

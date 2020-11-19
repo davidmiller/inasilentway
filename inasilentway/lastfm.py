@@ -62,6 +62,11 @@ LASTFM_PRE_SUBMIT_TRACKS = {
     "Absolutely Free:The Mothers": [{'exclude': {'position': ''}}],
     "Imitations:Mark Lanegan": [{'exclude': {'position__startswith': 'CD'}}],
     "Journey To The Mountain Of Forever:Binker And Moses": [{'exclude': {'position': ''}}],
+    'Sings The Cole Porter Songbook:Ella Fitzgerald': [{'exclude': {'position': ''}}],
+    'Ruth Is Stranger Than Richard:Robert Wyatt': [{'exclude': {'position': ''}}],
+    'Centipede Hz:Animal Collective': [{'exclude': {'position__startswith': 'DVD'}}],
+    "IX:...And You Will Know Us By The Trail Of Dead": [{'exclude': {'position__startswith': 'CD'}}],
+    'Comicopera:Robert Wyatt': [{'exclude': {'position': ''}}],
 }
 
 # Sometimes we would like to pick an artist from a record that has many.
@@ -74,6 +79,7 @@ LASTFM_PRE_SUBMIT_ARTIST_CHOICES = {
     'Things Are Getting Better'         : 'Cannonball Adderley',
     'Oleo'                              : 'Grant Green Quartet',
     'In Orbit'                          : 'Clark Terry',
+    'Der Ring Des Nibelungen'           : 'Richard Wagner',
 }
 
 
@@ -111,6 +117,9 @@ LASTFM_CORRECTIONS = {
         '801 / 801 Live'                                        : '801 Live',
         'Blood on the Tracks'                                   : 'Blood On The Tracks',
         'Master Takes. The Savoy Recordings'                    : 'Master Takes / The Savoy Recordings',
+        'Ella Fitzgerald Sings the Cole Porter Song Book'       : 'Sings The Cole Porter Songbook',
+        'Ella Fitzgerald Sings The Cole Porter Songbook'        : 'Sings The Cole Porter Songbook',
+        'Live At The Village Vanguard'                          : '"Live" At the Village Vanguard',
     },
 
     'artist': {

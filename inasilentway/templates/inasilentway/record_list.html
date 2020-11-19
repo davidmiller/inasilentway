@@ -9,15 +9,15 @@
 
 {% endblock %}
 {% block content %}
-  <h2 class="f6 ttu bb mt3 mb3">
-    <div class="flex">
-      <div class="fl w-40">
+  <h2 class="f6 ttu bb mt3 mb3 pb3">
+    <div class="flex-ns">
+      <div class="w-40">
         Records ({{ view.num_records | intcomma }})
       </div>
-      <div class="fl w-20 tc">
+      <div class="w-20-ns tc">
         <a href="{{ view.request.get_full_path }}{% if '?' in view.request.get_full_path %}&{% else %}?{% endif %}redirect=random">Random</a>
       </div>
-      <div class="fl w-40">
+      <div class="w-40-ns">
         <span class="fr">
           <a href="{{ view.request.META.PATH_INFO }}?sort=artist">Artist</a>
           <a href="{{ view.request.META.PATH_INFO }}?sort=title">Title</a>
@@ -28,13 +28,13 @@
     </div>
   </h2>
 
-  <div class="flex pb3">
+  <div class="flex-ns pb3">
     {% for record in object_list %}
-      <div class="fl w-20">
+      <div class="w-20-ns">
         <a href="{{ record.get_absolute_url }}">
           <img src="{{ record.thumb }}" />
         </a>
-        <p class="w-60">
+        <p class="w-60-ns">
           {{ record.title }}
           <br />
           {% for artist in record.artist.all %}
@@ -44,7 +44,7 @@
       </div>
       {% if forloop.counter|divisibleby:"5" %}
         </div>
-        <div class="flex pb3">
+        <div class="flex-ns pb3">
       {% endif %}
     {% endfor %}
   </div>
