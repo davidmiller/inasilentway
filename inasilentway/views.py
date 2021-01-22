@@ -429,7 +429,8 @@ class ListeningHistoryView(TemplateView):
         # So we can toggle float view
         per_day = float(count) / days
         per_day = float("{:.2f}".format(per_day))
-#        per_day = int(per_day)
+
+        per_day = int(per_day)
 
         return {
             'per_day': per_day,

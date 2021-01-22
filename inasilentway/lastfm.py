@@ -67,6 +67,8 @@ LASTFM_PRE_SUBMIT_TRACKS = {
     'Centipede Hz:Animal Collective': [{'exclude': {'position__startswith': 'DVD'}}],
     "IX:...And You Will Know Us By The Trail Of Dead": [{'exclude': {'position__startswith': 'CD'}}],
     'Comicopera:Robert Wyatt': [{'exclude': {'position': ''}}],
+    'Enter The Wu-Tang (36 Chambers):Wu-Tang Clan': [{'exclude': {'position': ''}}],
+
 }
 
 # Sometimes we would like to pick an artist from a record that has many.
