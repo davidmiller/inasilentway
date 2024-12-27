@@ -129,7 +129,13 @@
             <span class="{{ artist.all_time_ranking.klass }} f4">
               {{ artist.all_time_ranking.icon | safe }}
             </span>&nbsp;
+            {% if artist.url %}
+              <a href="{{ artist.url }}">
+            {% endif %}
             {{ artist.artist|slice:":30" }}
+            {% if artist.url %}
+              </a>
+            {% endif %}
             <span class="fr">{{ artist.total | intcomma }}</span>
           </li>
         {% endfor %}

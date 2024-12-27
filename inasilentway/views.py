@@ -345,7 +345,7 @@ class RecentlyScrobbledRecordsView(TemplateView):
                 recents.append(scrobble.isw_album)
                 seen.add(play)
 
-            if len(recents) == 30:
+            if len(recents) == 300:
                 print(seen)
                 return recents
 

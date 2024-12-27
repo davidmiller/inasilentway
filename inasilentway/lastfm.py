@@ -42,7 +42,7 @@ LASTFM_PRE_SUBMIT_TRACKS = {
     'Mess:Liars': [{'exclude': {'position__startswith': 'CD'}}],
     'O Amor, O Sorriso E A Flor:João Gilberto': [{'exclude': {'position__startswith': 'CD'}}],
     'Bad As Me:Tom Waits': [{'exclude': {'position__startswith': 'CD'}}],
-    'Yankee Hotel Foxtrot:Wilco': [{'exclude': {'position__startswith': 'CD'}}],
+    'Comedown Machine:The Strokes': [{'exclude': {'position__startswith': 'CD'}}],
     'Ballads:The John Coltrane Quartet': [{'exclude': {'position': ''}}],
     'Ghosteen:Nick Cave & The Bad Seeds': [{'exclude': {'position': ''}}],
     'Are You Experienced / Axis: Bold As Love:The Jimi Hendrix Experience': [{'exclude': {'position': ''}}],
@@ -64,10 +64,29 @@ LASTFM_PRE_SUBMIT_TRACKS = {
     "Journey To The Mountain Of Forever:Binker And Moses": [{'exclude': {'position': ''}}],
     'Sings The Cole Porter Songbook:Ella Fitzgerald': [{'exclude': {'position': ''}}],
     'Ruth Is Stranger Than Richard:Robert Wyatt': [{'exclude': {'position': ''}}],
-    'Centipede Hz:Animal Collective': [{'exclude': {'position__startswith': 'DVD'}}],
+    'Centipede Hz:Animal Collective': [{'exclude': {'position__startswith': 'DVD'}}, {'exclude': {'position': ''}}],
     "IX:...And You Will Know Us By The Trail Of Dead": [{'exclude': {'position__startswith': 'CD'}}],
     'Comicopera:Robert Wyatt': [{'exclude': {'position': ''}}],
     'Enter The Wu-Tang (36 Chambers):Wu-Tang Clan': [{'exclude': {'position': ''}}],
+    'Abattoir Blues / The Lyre Of Orpheus:Nick Cave & The Bad Seeds': [{'exclude': {'position': ''}}],
+    'Enter The Wu-Tang (36 Chambers):Wu-Tang Clan': [{'exclude': {'position': ''}}],
+    'Cheetah EP:Aphex Twin': [{'exclude': {'position': ''}}],
+    'The Crackdown:Cabaret Voltaire': [{'exclude': {'position': ''}}],
+    'Mingus At Monterey:Charles Mingus': [{'exclude': {'title': '-'}}],
+    'Let Go:Nada Surf': [{'exclude': {'position': 'D'}}],
+    "Orfeo Ed Euridice (Abridged Version):Christoph Willibald Gluck": [{'exclude': {'position': ''}}],
+    "Penthouse And Pavement:Heaven 17": [{'exclude': {'position': ''}}],
+    "OK Computer:Radiohead": [{'exclude': {'position': ''}}],
+    "Illmatic:Nas": [{'exclude': {'position': ''}}],
+    "Astral Weeks:Van Morrison": [{'exclude': {'position': ''}}],
+    'Cuckooland:Robert Wyatt': [{'exclude': {'position': ''}}],
+    'Yankee Hotel Foxtrot:Wilco': [{'exclude': {'position__startswith': 'CD'}}],
+    'Evermore:Taylor Swift': [{'exclude': {'position': ''}}],
+    'Folklore:Taylor Swift': [{'exclude': {'position': ''}}],
+    'The Tortured Poets Department:Taylor Swift': [{'exclude': {'position': ''}}],
+    'Yankee Hotel Foxtrot:Wilco': [{'exclude': {'position__startswith': 'CD'}}],
+    'Wednesdays:Ryan Adams' : [{'exclude': {'position': 'C'}}, {'position': 'D'}],
+    'Hello Everything:Squarepusher': [{'exclude': {'position': ''}}, {'exclude': {'title__contains': '4026'}}],
 
 }
 
@@ -76,18 +95,30 @@ LASTFM_PRE_SUBMIT_TRACKS = {
 # e.g. Discogs lists Earl Hines as the first artist on The Louis Armstrong
 # Story vol 3. Louis Armstrong and Earl Hines. With love, Earl is not why we're here.
 LASTFM_PRE_SUBMIT_ARTIST_CHOICES = {
-    'The Louis Armstrong Story - Vol. 3': 'Louis Armstrong',
-    'The Greatest Trumpet Of Them All'  : 'The Dizzy Gillespie Octet',
-    'Things Are Getting Better'         : 'Cannonball Adderley',
-    'Oleo'                              : 'Grant Green Quartet',
-    'In Orbit'                          : 'Clark Terry',
-    'Der Ring Des Nibelungen'           : 'Richard Wagner',
+    'The Louis Armstrong Story - Vol. 3'                    : 'Louis Armstrong',
+    'The Greatest Trumpet Of Them All'                      : 'The Dizzy Gillespie Octet',
+    'Things Are Getting Better'                             : 'Cannonball Adderley',
+    'Oleo'                                                  : 'Grant Green Quartet',
+    'In Orbit'                                              : 'Clark Terry',
+    'Der Ring Des Nibelungen'                               : 'Richard Wagner',
+    'The All-Star Sessions'                                 : 'Elmo Hope',
+    'Violin Concerto'                                       : 'Johannes Brahms',
+    'Finlandia, Karelia, The Swan Of Tuonela, Valse Triste' : 'Jean Sibelius',
+    'Piano Concertos Nos.1 And 2'                           : 'Sergei Vasilyevich Rachmaninoff',
+    'Eine Kleine Nachtmusik, Divertimento KV 287'           : 'Wolfgang Amadeus Mozart',
+    'Symphony Number 6 In F Major, Op. 68 "Pastoral"'       : 'Ludwig Van Beethoven',
+    'High Pressure'                                         : 'The Red Garland Quintet',
 }
 
 
 LASTFM_CORRECTIONS = {
     #
     # Sometimes Last.fm "corrects" album titles.
+    #
+    # This is useful on occasions where it e.g. strips trailing whitespace.
+    #
+    # It's less useful when being pernickerty about punctuaion.
+    #
     # Where these are different to Discogs album title versions this means we
     # are unable to match the scrobbles to the album.
     #
@@ -122,6 +153,10 @@ LASTFM_CORRECTIONS = {
         'Ella Fitzgerald Sings the Cole Porter Song Book'       : 'Sings The Cole Porter Songbook',
         'Ella Fitzgerald Sings The Cole Porter Songbook'        : 'Sings The Cole Porter Songbook',
         'Live At The Village Vanguard'                          : '"Live" At the Village Vanguard',
+        'Planet Her'                                            : 'Planet Her ',
+        'Blackboard Jungle Dub'                                 : ' Blackboard Jungle Dub',
+        'THE TORTURED POETS DEPARTMENT'                         : 'The Tortured Poets Department ',
+
     },
 
     'artist': {
@@ -147,7 +182,6 @@ LASTFM_CORRECTIONS = {
         'Thelonious Monk'                     : 'Thelonious Monk Septet',
         'Phil Manzanera'                      : '801',
         'HAIM'                                : 'Haim (2)',
-
     }
 }
 
